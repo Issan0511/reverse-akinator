@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
+  title: '逆ネーター',
+  description: 'はい・いいえ質問でキャラクターを当てる逆アキネーター的ゲーム！',
   generator: 'v0.dev',
 }
 
