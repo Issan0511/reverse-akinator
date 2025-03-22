@@ -15,7 +15,17 @@ export default function ResultScreen() {
       exit={{ opacity: 0 }}
       className="flex flex-col items-center justify-center p-6 h-full"
     >
-
+      <motion.div
+        initial={{ y: 50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="text-center mb-8"
+      >
+        <h1 className="text-4xl md:text-5xl font-bold text-white mb-4"></h1>
+        <p className="text-xl text-white/80"></p>
+        <br />
+        <p className="text-xl text-white/80"></p>
+      </motion.div>
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
