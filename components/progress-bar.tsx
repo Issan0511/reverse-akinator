@@ -3,8 +3,7 @@
 import { useGame } from "@/context/game-context"
 
 export default function ProgressBar() {
-  const { questions, remainingQuestions } = useGame()
-  const maxQuestions = 10
+  const { questions, remainingQuestions,maxQuestions } = useGame()
   const progress = (questions.length / maxQuestions) * 100
 
   return (
@@ -24,4 +23,3 @@ export default function ProgressBar() {
     </div>
   )
 }
-

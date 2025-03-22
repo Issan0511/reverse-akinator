@@ -15,15 +15,6 @@ export default function ResultScreen() {
       exit={{ opacity: 0 }}
       className="flex flex-col items-center justify-center p-6 h-full"
     >
-      <motion.div
-        initial={{ y: 50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.2 }}
-        className="text-center mb-8"
-      >
-        <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">ゲーム終了！</h1>
-        <p className="text-xl text-white/80">魔人が考えていたキャラクターは...</p>
-      </motion.div>
 
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
@@ -35,24 +26,40 @@ export default function ResultScreen() {
       </motion.div>
 
       <motion.div
+        initial={{ y: 50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="text-center mb-8"
+      >
+        <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">ゲーム終了！</h1>
+        <p className="text-xl text-white/80">魔人が考えていたキャラクターは...</p>
+      </motion.div>
+
+
+
+      {/* キャラクター情報のブロックを質問履歴表示に差し替え */}
+      <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.6 }}
-        className="text-center mb-8 bg-white/20 p-6 rounded-xl max-w-md"
+        className="text-center mb-8 bg-white/20 p-6 rounded-xl max-w-md w-full"
       >
         <div className="text-6xl mb-4">{selectedCharacter?.emoji}</div>
         <h2 className="text-2xl font-bold text-white mb-2">{selectedCharacter?.name}</h2>
         <p className="text-white/90 mb-4">{selectedCharacter?.description}</p>
-
-        <div className="grid grid-cols-3 gap-2 text-sm">
-          {selectedCharacter?.traits &&
-            Object.entries(selectedCharacter.traits).map(([key, value]) => (
-              <div key={key} className="bg-white/10 p-2 rounded">
-                <div className="font-semibold">{key}</div>
-                <div>{value.toString()}</div>
+        <h3 className="text-xl font-bold text-white mb-4">質問履歴</h3>
+        <ul className="space-y-2">
+          {questions.map((q, index) => (
+            <li key={index} className="text-white/90">
+              <div>
+                <span className="font-semibold">Q:</span> {q.question}
               </div>
-            ))}
-        </div>
+              <div>
+                <span className="font-semibold">A:</span> {q.answer}
+              </div>
+            </li>
+          ))}
+        </ul>
       </motion.div>
 
       <motion.div
@@ -75,4 +82,4 @@ export default function ResultScreen() {
     </motion.div>
   )
 }
-
+ 

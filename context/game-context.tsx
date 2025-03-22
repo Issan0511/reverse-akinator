@@ -17,6 +17,7 @@ interface GameContextType {
   setWizardEmotion: (emotion: "neutral" | "thinking" | "happy" | "excited" | "confused") => void
   isLoading: boolean
   setIsLoading: (loading: boolean) => void
+  maxQuestions: number
   remainingQuestions: number
 }
 
@@ -30,7 +31,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     "neutral",
   )
   const [isLoading, setIsLoading] = useState(false)
-  const maxQuestions = 10
+  const maxQuestions = 25
   const remainingQuestions = maxQuestions - questions.length
 
   useEffect(() => {
@@ -71,6 +72,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
         setWizardEmotion,
         isLoading,
         setIsLoading,
+        maxQuestions,
         remainingQuestions,
       }}
     >

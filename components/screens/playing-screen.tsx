@@ -44,7 +44,6 @@ export default function PlayingScreen() {
           character: selectedCharacter,
         }),
       })
-
       const data = await response.json()
       console.log("Answer:", data)
       // ここで data.answer は次のような形式を想定：
@@ -71,7 +70,7 @@ export default function PlayingScreen() {
           setWizardEmotion("confused")
         }
         setIsLoading(false)
-
+        
         // 残りの質問がなくなったら結果画面へ
         if (remainingQuestions <= 1||newAnswer === "答えに到達") {
           setTimeout(() => {
