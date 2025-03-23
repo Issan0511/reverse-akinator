@@ -1,19 +1,18 @@
-// app/page.tsx
 "use client";
 
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import GameScreen from "@/components/game-screen";
+import LoginButton from "@/components/login/LoginButton"; // ← ログインボタンのコンポーネント（Googleログイン等）
 
-export default function HomePage() {
+export default function LoginPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) {
-      // 未ログインの場合はログインページへ
-      router.replace("/login");
+    // ローディングが終わってログイン済みならトップページに飛ばす
+    if (!loading && user) {
+      router.replace("/");
     }
   }, [user, loading, router]);
 
@@ -21,11 +20,16 @@ export default function HomePage() {
     return <p>Loading...</p>;
   }
 
-  if (!user) {
-    // ここはリダイレクト中なので何も描画しなくてもOK
+  if (user) {
+    // ログイン済みなら / にリダイレクト中
     return null;
   }
 
-  // ログイン済みならゲーム画面を表示
-  return <GameScreen />;
+  // 未ログインなら ログインボタンなどを表示
+  return (
+    <div>
+      <h1>ログインページ</h1>
+      <LoginButton />
+    </div>
+  );
 }

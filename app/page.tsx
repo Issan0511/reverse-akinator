@@ -1,4 +1,3 @@
-// app/page.tsx
 "use client";
 
 import React, { useEffect } from "react";
@@ -11,22 +10,21 @@ export default function HomePage() {
   const router = useRouter();
 
   useEffect(() => {
-    // ローディングが終わって、かつ未ログインならログイン画面へ飛ばす
+    // 認証チェックが終わった後、未ログインなら /login へ
     if (!loading && !user) {
       router.replace("/login");
     }
   }, [user, loading, router]);
 
-  // まだユーザー情報が取れていない場合
   if (loading) {
     return <p>Loading...</p>;
   }
 
-  // 未ログインなら画面を返さず何も描画しない
+  // 未ログインなら上のuseEffectでリダイレクト -> ここでは nullを返すだけ
   if (!user) {
     return null;
   }
 
-  // ログイン済みならGameScreenを表示
+  // ログイン済みならゲーム画面を表示
   return <GameScreen />;
 }

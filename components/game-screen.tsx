@@ -1,4 +1,3 @@
-// components/game-screen.tsx
 "use client";
 
 import React from "react";
@@ -9,6 +8,7 @@ import PlayingScreen from "@/components/screens/playing-screen";
 import ResultScreen from "@/components/screens/result-screen";
 import CategoryScreen from "@/components/screens/category-screen";
 import { AnimatePresence } from "framer-motion";
+import LogoutButton from "@/components/login/LogoutButton";
 
 export default function GameScreen() {
   const { user, loading } = useAuth();
@@ -21,7 +21,13 @@ export default function GameScreen() {
   return (
     <div>
       {user && (
-        <h2 className="text-xl text-white/80" >ようこそ {user.displayName ? user.displayName : "ゲスト"} さん</h2>
+        <>
+          <h2 className="text-xl text-white/80">
+            ようこそ {user.displayName ? user.displayName : "ゲスト"} さん
+          </h2>
+          {/* ここにログアウトボタンを表示 */}
+          <LogoutButton />
+        </>
       )}
       <AnimatePresence mode="wait">
         {stage === "intro" && <IntroScreen key="intro" />}
