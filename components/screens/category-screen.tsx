@@ -8,6 +8,7 @@ import WizardCharacter from "@/components/wizard-character"
 import type { Category } from "@/types/character"
 
 
+
 export default function CategoryScreen() {
   const { selectedCategory, setStage, setCategory, setWizardEmotion, selectRandomCharacter } = useGame()
   
@@ -91,6 +92,22 @@ export default function CategoryScreen() {
         >
           国
         </Button>
+
+        <Button
+          onClick={() => handleCategorySelect("persons")}
+          className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white px-8 py-6 rounded-full text-lg font-medium shadow-lg hover:shadow-xl transition-all"
+        >
+          人物
+        </Button>
+
+        <Button
+          onClick={() => handleCategorySelect("scienceWords")}
+          className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white px-8 py-6 rounded-full text-lg font-medium shadow-lg hover:shadow-xl transition-all"
+        >
+          理科の用語
+        </Button>
+
+
       </motion.div>
     </motion.div>
   )

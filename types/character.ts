@@ -3,6 +3,7 @@ export interface Character {
   name: string
   emoji: string
   description: string
+  tips: string
 }
 
 
@@ -18,6 +19,7 @@ export interface Animal {
   name: string
   emoji: string
   description: string
+  tips: string
 }
 
 export interface Country {
@@ -25,7 +27,26 @@ export interface Country {
   name: string
   emoji: string
   description: string
+  tips: string
+}
+
+export interface ScienceWord {
+  id: number
+  name: string
+  emoji: string
+  description: string
+  tips: string
 }
 
 
-export type Category = "characters" | "animals" | "countries" 
+export interface Person {
+  id: number
+  name: string
+  emoji: string
+  description: string
+  tips: string
+}
+
+
+
+export type Category = "characters" | "animals" | "countries" | "programs" | "scienceWords" | "persons"
