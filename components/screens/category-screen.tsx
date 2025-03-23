@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useRef } from "react"
 import { useGame } from "@/context/game-context"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
@@ -8,7 +9,19 @@ import type { Category } from "@/types/character"
 
 
 export default function CategoryScreen() {
-  const { setStage, setCategory, setWizardEmotion } = useGame()
+  const { selectedCategory, setStage, setCategory, setWizardEmotion, selectRandomCharacter } = useGame()
+  
+  const isFirstRender = useRef(true)
+
+  // selectedCategory の変更を監視し、更新されたらキャラクター選択を実行
+  useEffect(() => {
+    if (selectedCategory) {
+      selectRandomCharacter()
+    }
+    // 依存配列は selectedCategory のみ
+  }, [selectedCategory])
+  
+
 
   // カテゴリーを選択したときに呼び出される関数
   const handleCategorySelect = (category: Category) => {
@@ -16,6 +29,8 @@ export default function CategoryScreen() {
     setWizardEmotion("excited")
     // 選択されたカテゴリーをセット
     setCategory(category)
+    // カテゴリー選択後にキャラクターをランダムに選ぶ
+    // selectRandomCharacter() ここでは呼ばない
     // 1秒後にゲーム画面へ進む
     setTimeout(() => {
       setStage("playing")
@@ -68,13 +83,13 @@ export default function CategoryScreen() {
           onClick={() => handleCategorySelect("animals")}
           className="bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-600 hover:to-orange-700 text-white px-8 py-6 rounded-full text-lg font-medium shadow-lg hover:shadow-xl transition-all"
         >
-          国
+          動物
         </Button>
         <Button
           onClick={() => handleCategorySelect("countries")}
           className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white px-8 py-6 rounded-full text-lg font-medium shadow-lg hover:shadow-xl transition-all"
         >
-          動物
+          国
         </Button>
       </motion.div>
     </motion.div>

@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
+import { useCallback } from "react"
 import { characters } from "@/data/characters"
 import type { Character } from "@/types/character"
 import { countries } from "@/data/countries"
@@ -22,6 +23,7 @@ interface GameContextType {
   stage: GameStage
   setStage: (stage: GameStage) => void
   selectedCharacter: SelectedCharacter
+  selectRandomCharacter: () => void
   questions: { question: string; answer: string }[]
   addQuestion: (question: string, answer: string) => void
   resetGame: () => void
@@ -46,7 +48,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     "neutral",
   )
   const [isLoading, setIsLoading] = useState(false)
-  // カテゴリー選択状態とその更新関数を追加（初期値は "person"）
+  // カテゴリー選択状態とその更新関数を追加（初期値は "null"）
   const [selectedCategory, setCategory] = useState<Category>("characters")
   const maxQuestions = 25
   const remainingQuestions = maxQuestions - questions.length
@@ -83,7 +85,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
   }
 
   const resetGame = () => {
-    selectRandomCharacter()
+    // selectRandomCharacter()
     setQuestions([])
     setStage("intro")
     setWizardEmotion("neutral")
@@ -106,6 +108,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
         setIsLoading,
         maxQuestions,
         remainingQuestions,
+        selectRandomCharacter, // ここで公開する
       }}
     >
       {children}
