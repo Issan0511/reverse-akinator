@@ -63,7 +63,7 @@ export default function ResultScreen() {
 
   const gptprompt = `${selectedCharacter?.name}についてのTipsを教えてください`;
   
-  const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent("https://reverse-akinator-git-main-issan0511s-projects.vercel.app/")}`
+  const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent("https://reverse-akinator-eight.vercel.app/")}`
   const gptUrl = `https://chatgpt.com/?q=${encodeURIComponent(gptprompt)}&hints=search&ref=ext&temporary-chat=true`;
   return (
     <motion.div
