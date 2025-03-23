@@ -5,7 +5,7 @@ import { useGame } from "@/context/game-context"
 
 // --- Firebase 関連 ---
 import { db } from "@/firebase"; // あなたの Firebase 初期化ファイル
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, serverTimestamp, query } from "firebase/firestore";
 
 import { motion } from "framer-motion"
 import Link from "next/link"
@@ -61,8 +61,10 @@ export default function ResultScreen() {
     ? `「逆ネーター」で ${questions.length} 問以内に『${selectedCharacter?.name}』を当てられた！\nあなたもプレイしてみよう👇` 
     : `「逆ネーター」で『${selectedCharacter?.name}』を当てられなかった...\nあなたも挑戦してみよう👇`
 
+  const gptprompt = `${selectedCharacter?.name}についてのTipsを教えてください`;
+  
   const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent("https://reverse-akinator-git-main-issan0511s-projects.vercel.app/")}`
-
+  const gptUrl = `https://chatgpt.com/?q=${encodeURIComponent(gptprompt)}&hints=search&ref=ext&temporary-chat=true`;
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -112,6 +114,15 @@ export default function ResultScreen() {
         <h2 className="text-2xl font-bold text-white mb-2">{selectedCharacter?.name}</h2>
         <p className="text-white/90 mb-4">{selectedCharacter?.description}</p>
         <p className="text-white/90 mb-4">{selectedCharacter?.tips}</p>
+        {/* gptUrlのリンクを追加 */}
+        <Link 
+          href={gptUrl} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="inline-block bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white px-8 py-6 rounded-full text-lg font-medium shadow-lg hover:shadow-xl transition-all"
+        >
+          もっと詳しく知る
+        </Link>
         <h3 className="text-xl font-bold text-white mb-4">質問履歴</h3>
         <ul className="space-y-4 text-left">
           {questions.map((q, index) => (
@@ -125,7 +136,9 @@ export default function ResultScreen() {
                     <div className="mb-1">
                       <span className="font-semibold text-sm text-blue-300">A:</span> {q.answer}
                     </div>
-                    
+                    <div className="text-xs text-white/60">
+                      {q.reason}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
