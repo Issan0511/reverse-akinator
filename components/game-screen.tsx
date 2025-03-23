@@ -21,7 +21,7 @@ export default function GameScreen() {
   return (
     <div>
       {user && (
-        <h2>ようこそ {user.displayName ? user.displayName : "ゲスト"} さん</h2>
+        <h2 className="text-xl text-white/80" >ようこそ {user.displayName ? user.displayName : "ゲスト"} さん</h2>
       )}
       <AnimatePresence mode="wait">
         {stage === "intro" && <IntroScreen key="intro" />}

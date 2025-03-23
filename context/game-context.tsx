@@ -9,10 +9,15 @@ import { countries } from "@/data/countries"
 import type { Country } from "@/types/character"
 import { animals } from "@/data/animals"
 import type { Animal } from "@/types/character"
+import { persons } from "@/data/persons"
+import type { Person } from "@/types/character"
+import { scienceWords } from "@/data/scienceWords"
+import type { ScienceWord } from "@/types/character"
+
 
 
 // 選択可能なカテゴリーを定義（必要に応じて追加してください）
-export type Category = "characters" | "animals" | "countries"
+export type Category = "characters" | "animals" | "countries"| "programs" | "scienceWords" | "persons"
 
 
 type GameStage = "intro" | "playing" | "result"| "category"
@@ -51,7 +56,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     "neutral",
   )
   const [isLoading, setIsLoading] = useState(false)
-  // カテゴリー選択状態とその更新関数を追加（初期値は "null"）
+  // カテゴリー選択状態とその更新関数を追加（初期値は "characters"）
   const [selectedCategory, setCategory] = useState<Category>("characters")
   const [isSuccess, setIsSuccess] = useState(true)
   const maxQuestions = 25
@@ -62,22 +67,42 @@ export function GameProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const selectRandomCharacter = () => {
-    let dataSource: (Character | Animal | Country)[]
+    let dataSource: (
+      | Character
+      | Animal
+      | Country
+      | ScienceWord
+      | Person
+    )[];
+  
     switch (selectedCategory) {
       case "animals":
-        dataSource = animals
-        break
+        dataSource = animals;
+        break;
       case "countries":
-        dataSource = countries
-        break
+        dataSource = countries;
+        break;
+      case "scienceWords":
+        dataSource = scienceWords;
+        break;
+      case "persons":
+        dataSource = persons;
+        break;
+      case "characters":
       default:
-        // "characters" の場合
-        dataSource = characters
-        break
+        dataSource = characters;
+        break;
     }
-    const randomIndex = Math.floor(Math.random() * dataSource.length)
-    setSelectedCharacter(dataSource[randomIndex] || null)
-  }
+  
+    const randomIndex = Math.floor(Math.random() * dataSource.length);
+    setSelectedCharacter(dataSource[randomIndex] || null);
+  };
+  
+  
+  
+  
+  
+  
 
   const addQuestion = (question: string, answer: string) => {
     setQuestions([...questions, { question, answer }])

@@ -63,6 +63,7 @@ export default function ResultScreen() {
         <div className="text-6xl mb-4">{selectedCharacter?.emoji}</div>
         <h2 className="text-2xl font-bold text-white mb-2">{selectedCharacter?.name}</h2>
         <p className="text-white/90 mb-4">{selectedCharacter?.description}</p>
+        <p className="text-white/90 mb-4">{selectedCharacter?.tips}</p>
         <h3 className="text-xl font-bold text-white mb-4">質問履歴</h3>
         <ul className="space-y-2">
           {questions.map((q, index) => (
@@ -106,6 +107,7 @@ export default function ResultScreen() {
       <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 1 }}>
         <Button
           onClick={resetGame}
+          variant="outline"
           className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white px-8 py-6 rounded-full text-lg font-medium shadow-lg hover:shadow-xl transition-all"
         >
           もう一度遊ぶ
