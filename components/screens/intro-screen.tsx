@@ -49,7 +49,7 @@ export default function IntroScreen() {
         className="text-center mb-8"
       >
         <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">逆ネーター</h1>
-        <p className="text-xl text-white/80">魔人の考えるキャラクターを当てよう！</p>
+        <p className="text-xl text-white/80">魔法使いの考えるキャラクターを当てよう！</p>
       </motion.div>
 
 
@@ -61,11 +61,11 @@ export default function IntroScreen() {
         className="text-center mb-8 max-w-md"
       >
         <p className="text-white/90 mb-4">
-          魔人が日本の歴史上の人物やフィクションキャラクターの中から1人を選びました。
+          魔法使いがこれから選ぶカテゴリーの中から1人を選びました。
           質問をして、誰なのかを当ててみましょう！
         </p>
         <p className="text-white/90">
-          質問は25回まで可能です。賢く質問して、魔人の考えるキャラクターを見つけ出しましょう！
+          質問は25回まで可能です。賢く質問して、魔法使いの考えるキャラクターを見つけ出しましょう！
         </p>
       </motion.div>
 

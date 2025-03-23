@@ -49,15 +49,17 @@ export default function PlayingScreen() {
       console.log("Answer:", data)
       // ここで data.answer は次のような形式を想定：
       // { "thinking-process": "～", "judgement": "いいえ" }
-      const { judgement } = data.answer
-      console.log("judgement:", judgement)
+      const { judgement, "thinking-process": thinkingProcess } = data.answer;
+      console.log("judgement:", judgement);
+      console.log("thinkingProcess:", thinkingProcess);
       const newAnswer = judgement
+      const reason = thinkingProcess
       setAnswer(newAnswer)
       // 例として、思考過程も履歴に残したい場合は addQuestion を拡張する
       setTimeout(() => {
         // addQuestion(question, judgement) の代わりに、必要なら思考過程も渡す
         addQuestion(question, 
-          newAnswer        )
+          newAnswer  ,reason      )
         setQuestion("")
 
         // ウィザードの表情は judgement によって変化

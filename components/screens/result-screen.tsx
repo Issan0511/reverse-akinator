@@ -5,9 +5,11 @@ import { motion } from "framer-motion"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import WizardCharacter from "@/components/wizard-character"
+import { Card, CardContent } from "@/components/ui/card"
 
 export default function ResultScreen() {
-  const { selectedCharacter, resetGame, questions, isSuccess } = useGame()
+  const { selectedCharacter, resetGame, questions, isSuccess } = useGame();
+  console.log("questions", questions);
   
   const tweetText = isSuccess 
     ? `「逆ネーター」で ${questions.length} 問以内に『${selectedCharacter?.name}』を当てられた！\nあなたもプレイしてみよう👇` 
@@ -51,7 +53,7 @@ export default function ResultScreen() {
         <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
           {isSuccess ? "クリア成功！" : "クリア失敗..."}
         </h1>
-        <p className="text-xl text-white/80">魔人が考えていたキャラクターは...</p>
+        <p className="text-xl text-white/80">魔法使いが考えていたキャラクターは...</p>
       </motion.div>
 
       <motion.div
@@ -64,15 +66,24 @@ export default function ResultScreen() {
         <h2 className="text-2xl font-bold text-white mb-2">{selectedCharacter?.name}</h2>
         <p className="text-white/90 mb-4">{selectedCharacter?.description}</p>
         <h3 className="text-xl font-bold text-white mb-4">質問履歴</h3>
-        <ul className="space-y-2">
+        <ul className="space-y-4 text-left">
           {questions.map((q, index) => (
-            <li key={index} className="text-white/90">
-              <div>
-                <span className="font-semibold">Q:</span> {q.question}
-              </div>
-              <div>
-                <span className="font-semibold">A:</span> {q.answer}
-              </div>
+            <li key={index}>
+              <Card className="bg-white/10 border-white/20">
+                <CardContent className="p-4">
+                  <div className="text-white/90">
+                    <div className="mb-2">
+                      <span className="font-semibold  text-purple-300">Q:</span> {q.question}
+                    </div>
+                    <div className="mb-1">
+                      <span className="font-semibold text-sm text-blue-300">A:</span> {q.answer}
+                    </div>
+                    <div className="text-xs text-white/60">
+                      {q.reason}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </li>
           ))}
         </ul>

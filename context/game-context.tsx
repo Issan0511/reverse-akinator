@@ -24,8 +24,8 @@ interface GameContextType {
   setStage: (stage: GameStage) => void
   selectedCharacter: SelectedCharacter
   selectRandomCharacter: () => void
-  questions: { question: string; answer: string }[]
-  addQuestion: (question: string, answer: string) => void
+  questions: { question: string; answer: string; reason?: string }[]
+  addQuestion: (question: string, answer: string, reason?: string ) => void
   resetGame: () => void
   wizardEmotion: "neutral" | "thinking" | "happy" | "excited" | "confused"
   setWizardEmotion: (emotion: "neutral" | "thinking" | "happy" | "excited" | "confused") => void
@@ -45,7 +45,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const [stage, setStage] = useState<GameStage>("intro")
   // 選択されたキャラクターをユニオン型で扱う
   const [selectedCharacter, setSelectedCharacter] = useState<SelectedCharacter>(null)
-  const [questions, setQuestions] = useState<{ question: string; answer: string }[]>([])
+  const [questions, setQuestions] = useState<{ question: string; answer: string ; reason? : string}[]>([])
   const [wizardEmotion, setWizardEmotion] = useState<"neutral" | "thinking" | "happy" | "excited" | "confused">(
     "neutral",
   )
@@ -78,8 +78,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setSelectedCharacter(dataSource[randomIndex] || null)
   }
 
-  const addQuestion = (question: string, answer: string) => {
-    setQuestions([...questions, { question, answer }])
+  const addQuestion = (question: string, answer: string, reason?:string) => {
+    setQuestions([...questions, { question, answer, reason }])
 
     // 「答えに到達」の場合は成功として明示的に設定
     if (answer === "答えに到達") {
