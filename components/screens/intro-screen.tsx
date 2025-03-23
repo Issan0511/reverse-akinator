@@ -11,7 +11,7 @@ export default function IntroScreen() {
   const handleStart = () => {
     setWizardEmotion("excited")
     setTimeout(() => {
-      setStage("playing")
+      setStage("category")
     }, 1000)
   }
 

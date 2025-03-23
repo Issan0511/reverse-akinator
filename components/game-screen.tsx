@@ -4,6 +4,7 @@ import { useGame } from "@/context/game-context"
 import IntroScreen from "@/components/screens/intro-screen"
 import PlayingScreen from "@/components/screens/playing-screen"
 import ResultScreen from "@/components/screens/result-screen"
+import CategoryScreen from "@/components/screens/category-screen"
 import { AnimatePresence } from "framer-motion"
 
 export default function GameScreen() {
@@ -14,6 +15,7 @@ export default function GameScreen() {
       {stage === "intro" && <IntroScreen key="intro" />}
       {stage === "playing" && <PlayingScreen key="playing" />}
       {stage === "result" && <ResultScreen key="result" />}
+      {stage === "category" && <CategoryScreen key="category" />}
     </AnimatePresence>
   )
 }
