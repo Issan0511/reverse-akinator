@@ -61,7 +61,7 @@ export default function WizardCharacter({ emotion }: WizardCharacterProps) {
       }}
     >
       {/* Wizard hat */}
-      <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[50px] border-r-[50px] border-b-[80px] border-l-transparent border-r-transparent border-b-indigo-800 z-10">
+      <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[50px] border-r-[50px] border-b-[80px] border-l-transparent border-r-transparent border-b-indigo-800 z-10">
         <div className="absolute top-16 left-1/2 -translate-x-1/2 w-80 h-10 bg-indigo-800 rounded-full -z-10"></div>
         {/* Stars on hat */}
         {[1, 2, 3].map((i) => (
@@ -79,7 +79,7 @@ export default function WizardCharacter({ emotion }: WizardCharacterProps) {
             transition={{
               repeat: Number.POSITIVE_INFINITY,
               duration: 2,
-              delay: i * 0.5,
+              delay: i * 0.8,
             }}
           />
         ))}
