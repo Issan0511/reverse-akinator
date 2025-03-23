@@ -1,19 +1,19 @@
-"use client"
+"use client";
 
-import { useGame } from "@/context/game-context"
-import { motion } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import WizardCharacter from "@/components/wizard-character"
+import { useGame } from "@/context/game-context";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import WizardCharacter from "@/components/wizard-character";
 
 export default function IntroScreen() {
-  const { setStage, setWizardEmotion } = useGame()
+  const { setStage, setWizardEmotion } = useGame();
 
   const handleStart = () => {
-    setWizardEmotion("excited")
+    setWizardEmotion("excited");
     setTimeout(() => {
-      setStage("category")
-    }, 1000)
-  }
+      setStage("category");
+    }, 1000);
+  };
 
   return (
     <motion.div
@@ -22,6 +22,7 @@ export default function IntroScreen() {
       exit={{ opacity: 0 }}
       className="flex flex-col items-center justify-center p-6 h-full"
     >
+      {/* タイトル前のテキスト */}
       <motion.div
         initial={{ y: 50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -33,6 +34,8 @@ export default function IntroScreen() {
         <br />
         <p className="text-xl text-white/80"></p>
       </motion.div>
+
+      {/* ウィザードキャラクター */}
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -42,6 +45,7 @@ export default function IntroScreen() {
         <WizardCharacter emotion="neutral" />
       </motion.div>
 
+      {/* ゲームタイトルとサブタイトル */}
       <motion.div
         initial={{ y: 50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -52,8 +56,7 @@ export default function IntroScreen() {
         <p className="text-xl text-white/80">魔法使いの考えるキャラクターを当てよう！</p>
       </motion.div>
 
-
-
+      {/* ゲームの説明文 */}
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -61,15 +64,20 @@ export default function IntroScreen() {
         className="text-center mb-8 max-w-md"
       >
         <p className="text-white/90 mb-4">
-          魔法使いがこれから選ぶカテゴリーの中から1人を選びました。
-          質問をして、誰なのかを当ててみましょう！
+          魔法使いがこれから選ぶカテゴリーの中から何か1つを思い浮かべます。
+          質問をして、誰・何なのかを当ててみましょう！
         </p>
         <p className="text-white/90">
           質問は25回まで可能です。賢く質問して、魔法使いの考えるキャラクターを見つけ出しましょう！
         </p>
       </motion.div>
 
-      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.8 }}>
+      {/* ゲーム開始ボタン */}
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.8 }}
+      >
         <Button
           onClick={handleStart}
           className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white px-8 py-6 rounded-full text-lg font-medium shadow-lg hover:shadow-xl transition-all"
@@ -77,7 +85,8 @@ export default function IntroScreen() {
           ゲームを始める
         </Button>
       </motion.div>
-    </motion.div>
-  )
-}
 
+      
+    </motion.div>
+  );
+}

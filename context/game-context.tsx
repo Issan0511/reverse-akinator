@@ -20,7 +20,7 @@ import type { ScienceWord } from "@/types/character"
 export type Category = "characters" | "animals" | "countries"| "programs" | "scienceWords" | "persons"
 
 
-type GameStage = "intro" | "playing" | "result"| "category"
+type GameStage = "intro" | "playing" | "result"| "category"| "rank"
 
 // selectedCharacter をユニオン型にする
 type SelectedCharacter = Character | Animal | Country | null
@@ -43,12 +43,16 @@ interface GameContextType {
   setCategory: (category: Category) => void
   isSuccess: boolean
   giveUp: () => void
+  // ここで user, loading を追加
+  user: any;
+  loading: boolean;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined)
 
 export function GameProvider({ children }: { children: ReactNode }) {
   const [stage, setStage] = useState<GameStage>("intro")
+  const { user, loading } = useAuth(); // ★ ここでFirebaseのユーザー情報を取得
   // 選択されたキャラクターをユニオン型で扱う
   const [selectedCharacter, setSelectedCharacter] = useState<SelectedCharacter>(null)
   const [questions, setQuestions] = useState<{ question: string; answer: string ; reason? : string}[]>([])
@@ -154,6 +158,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
         isSuccess,
         giveUp,
+
+        // ★ userとloadingも一緒に提供
+        user,
+        loading,
 
       }}
     >
