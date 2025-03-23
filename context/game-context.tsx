@@ -3,13 +3,25 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import { characters } from "@/data/characters"
 import type { Character } from "@/types/character"
+import { countries } from "@/data/countries"
+import type { Country } from "@/types/character"
+import { animals } from "@/data/animals"
+import type { Animal } from "@/types/character"
 
-type GameStage = "intro" | "playing" | "result"
+
+// 選択可能なカテゴリーを定義（必要に応じて追加してください）
+export type Category = "characters" | "animals" | "countries"
+
+
+type GameStage = "intro" | "playing" | "result"| "category"
+
+// selectedCharacter をユニオン型にする
+type SelectedCharacter = Character | Animal | Country | null
 
 interface GameContextType {
   stage: GameStage
   setStage: (stage: GameStage) => void
-  selectedCharacter: Character | null
+  selectedCharacter: SelectedCharacter
   questions: { question: string; answer: string }[]
   addQuestion: (question: string, answer: string) => void
   resetGame: () => void
@@ -19,18 +31,23 @@ interface GameContextType {
   setIsLoading: (loading: boolean) => void
   maxQuestions: number
   remainingQuestions: number
+  selectedCategory: Category
+  setCategory: (category: Category) => void
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined)
 
 export function GameProvider({ children }: { children: ReactNode }) {
   const [stage, setStage] = useState<GameStage>("intro")
-  const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null)
+  // 選択されたキャラクターをユニオン型で扱う
+  const [selectedCharacter, setSelectedCharacter] = useState<SelectedCharacter>(null)
   const [questions, setQuestions] = useState<{ question: string; answer: string }[]>([])
   const [wizardEmotion, setWizardEmotion] = useState<"neutral" | "thinking" | "happy" | "excited" | "confused">(
     "neutral",
   )
   const [isLoading, setIsLoading] = useState(false)
+  // カテゴリー選択状態とその更新関数を追加（初期値は "person"）
+  const [selectedCategory, setCategory] = useState<Category>("characters")
   const maxQuestions = 25
   const remainingQuestions = maxQuestions - questions.length
 
@@ -39,8 +56,21 @@ export function GameProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const selectRandomCharacter = () => {
-    const randomIndex = Math.floor(Math.random() * characters.length)
-    setSelectedCharacter(characters[randomIndex])
+    let dataSource: (Character | Animal | Country)[]
+    switch (selectedCategory) {
+      case "animals":
+        dataSource = animals
+        break
+      case "countries":
+        dataSource = countries
+        break
+      default:
+        // "characters" の場合
+        dataSource = characters
+        break
+    }
+    const randomIndex = Math.floor(Math.random() * dataSource.length)
+    setSelectedCharacter(dataSource[randomIndex] || null)
   }
 
   const addQuestion = (question: string, answer: string) => {
@@ -65,6 +95,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
         stage,
         setStage,
         selectedCharacter,
+        selectedCategory,
+        setCategory,
         questions,
         addQuestion,
         resetGame,
