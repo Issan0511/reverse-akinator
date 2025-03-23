@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import { useCallback } from "react"
+import { useAuth } from "@/hooks/useAuth";
 import { characters } from "@/data/characters"
 import type { Character } from "@/types/character"
 import { countries } from "@/data/countries"

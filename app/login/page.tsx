@@ -11,22 +11,21 @@ export default function HomePage() {
   const router = useRouter();
 
   useEffect(() => {
-    // ローディングが終わって、かつ未ログインならログイン画面へ飛ばす
     if (!loading && !user) {
+      // 未ログインの場合はログインページへ
       router.replace("/login");
     }
   }, [user, loading, router]);
 
-  // まだユーザー情報が取れていない場合
   if (loading) {
     return <p>Loading...</p>;
   }
 
-  // 未ログインなら画面を返さず何も描画しない
   if (!user) {
+    // ここはリダイレクト中なので何も描画しなくてもOK
     return null;
   }
 
-  // ログイン済みならGameScreenを表示
+  // ログイン済みならゲーム画面を表示
   return <GameScreen />;
 }
