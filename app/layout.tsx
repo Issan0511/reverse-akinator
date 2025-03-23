@@ -3,7 +3,7 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: '逆ネーター',
-  description: 'はい・いいえ質問でキャラクターを当てる逆アキネーター的ゲーム！',
+  description: 'はい・いいえの質問でキャラクターを当てる逆アキネーター的ゲーム！',
   generator: 'v0.dev',
 }
 
