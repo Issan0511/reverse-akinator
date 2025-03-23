@@ -7,7 +7,7 @@ export default function QuestionHistory() {
   const { questions } = useGame()
 
   if (questions.length === 0) {
-    return <div className="text-center p-4 text-white/70">はいかいいえかで答えられる質問をして、キャラクターについて情報を集めましょう！<br/>答えが分かったら、「答えは～ですか？」と質問しましょう！ </div>
+    return <div className="text-left p-4 text-white/70">「はい」か「いいえ」かで答えられる質問をして、<br/>お題について情報を集めましょう！<br/>答えが分かったら、<br/>「答えは～ですか？」と質問しましょう！ </div>
   }
 
   return (
