@@ -35,6 +35,8 @@ interface GameContextType {
   remainingQuestions: number
   selectedCategory: Category
   setCategory: (category: Category) => void
+  isSuccess: boolean
+  giveUp: () => void
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined)
@@ -50,6 +52,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(false)
   // カテゴリー選択状態とその更新関数を追加（初期値は "null"）
   const [selectedCategory, setCategory] = useState<Category>("characters")
+  const [isSuccess, setIsSuccess] = useState(true)
   const maxQuestions = 25
   const remainingQuestions = maxQuestions - questions.length
 
@@ -78,10 +81,21 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const addQuestion = (question: string, answer: string) => {
     setQuestions([...questions, { question, answer }])
 
+    // 「答えに到達」の場合は成功として明示的に設定
+    if (answer === "答えに到達") {
+      setIsSuccess(true)
+    }
+
     // Check if game should end
     if (questions.length + 1 >= maxQuestions) {
+      setIsSuccess(false)
       setStage("result")
     }
+  }
+
+  const giveUp = () => {
+    setIsSuccess(false)
+    setStage("result")
   }
 
   const resetGame = () => {
@@ -89,6 +103,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setQuestions([])
     setStage("intro")
     setWizardEmotion("neutral")
+    setIsSuccess(true)
   }
 
   return (
@@ -108,7 +123,12 @@ export function GameProvider({ children }: { children: ReactNode }) {
         setIsLoading,
         maxQuestions,
         remainingQuestions,
+
         selectRandomCharacter, // ここで公開する
+
+        isSuccess,
+        giveUp,
+
       }}
     >
       {children}

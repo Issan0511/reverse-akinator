@@ -20,6 +20,7 @@ export default function PlayingScreen() {
     selectedCharacter,
     remainingQuestions,
     setStage,
+    giveUp,
   } = useGame()
 
   const [question, setQuestion] = useState("")
@@ -120,9 +121,20 @@ export default function PlayingScreen() {
               </Button>
             </div>
           </form>
+          
+          <div className="mt-3 text-center">
+            <Button
+              onClick={giveUp}
+              variant="outline"
+              disabled={isLoading}
+              className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700"
+            >
+              ギブアップする
+            </Button>
+          </div>
         </div>
 
-        <div className="w-full md:w-1/2 p-4 flex items-center justify-center">
+        <div className="mt-9 w-full md:w-1/2 p-4 flex items-center justify-center">
           <WizardCharacter emotion={wizardEmotion} />
         </div>
       </div>

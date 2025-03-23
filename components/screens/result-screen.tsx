@@ -2,11 +2,18 @@
 
 import { useGame } from "@/context/game-context"
 import { motion } from "framer-motion"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import WizardCharacter from "@/components/wizard-character"
 
 export default function ResultScreen() {
-  const { selectedCharacter, resetGame, questions } = useGame()
+  const { selectedCharacter, resetGame, questions, isSuccess } = useGame()
+  
+  const tweetText = isSuccess 
+    ? `「逆ネーター」で ${questions.length} 問以内に『${selectedCharacter?.name}』を当てられた！\nあなたもプレイしてみよう👇` 
+    : `「逆ネーター」で『${selectedCharacter?.name}』を当てられなかった...\nあなたも挑戦してみよう👇`
+
+  const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent("https://reverse-akinator-git-main-issan0511s-projects.vercel.app/")}`
 
   return (
     <motion.div
@@ -32,7 +39,7 @@ export default function ResultScreen() {
         transition={{ delay: 0.4 }}
         className="mb-8"
       >
-        <WizardCharacter emotion="excited" />
+        <WizardCharacter emotion={isSuccess ? "excited" : "confused"} />
       </motion.div>
 
       <motion.div
@@ -41,13 +48,12 @@ export default function ResultScreen() {
         transition={{ delay: 0.2 }}
         className="text-center mb-8"
       >
-        <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">ゲーム終了！</h1>
+        <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+          {isSuccess ? "クリア成功！" : "クリア失敗..."}
+        </h1>
         <p className="text-xl text-white/80">魔人が考えていたキャラクターは...</p>
       </motion.div>
 
-
-
-      {/* キャラクター情報のブロックを質問履歴表示に差し替え */}
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -78,8 +84,24 @@ export default function ResultScreen() {
         transition={{ delay: 0.8 }}
         className="text-center mb-6"
       >
-        <p className="text-white/90">{questions.length}回の質問で終了しました！</p>
+        <p className="text-white/90">
+          {isSuccess 
+            ? `${questions.length}回の質問で終了しました！` 
+            : "残念ながら当てられませんでしたまた挑戦して下さい！"}
+        </p>
       </motion.div>
+
+      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 1.4 }} className="mb-4">
+        <Link href={tweetUrl} target="_blank" rel="noopener noreferrer">
+          <Button
+            variant="outline"
+            className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white px-8 py-6 rounded-full text-lg font-medium shadow-lg hover:shadow-xl transition-all"
+          >
+            結果をXでシェアする
+          </Button>
+        </Link>
+      </motion.div>
+
 
       <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 1 }}>
         <Button
@@ -89,7 +111,7 @@ export default function ResultScreen() {
           もう一度遊ぶ
         </Button>
       </motion.div>
+ 
     </motion.div>
   )
 }
- 
