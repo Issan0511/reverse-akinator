@@ -7,6 +7,7 @@ import IntroScreen from "@/components/screens/intro-screen";
 import PlayingScreen from "@/components/screens/playing-screen";
 import ResultScreen from "@/components/screens/result-screen";
 import CategoryScreen from "@/components/screens/category-screen";
+import RankScreen from "@/components/screens/rank-screen"; // ★ ここを追加
 import { AnimatePresence } from "framer-motion";
 import LogoutButton from "@/components/login/LogoutButton";
 
@@ -34,6 +35,7 @@ export default function GameScreen() {
         {stage === "playing" && <PlayingScreen key="playing" />}
         {stage === "result" && <ResultScreen key="result" />}
         {stage === "category" && <CategoryScreen key="category" />}
+        {stage === "rank" && <RankScreen key="rank" />}
       </AnimatePresence>
     </div>
   );

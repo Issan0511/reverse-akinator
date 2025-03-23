@@ -21,7 +21,8 @@ const LoginButton: React.FC = () => {
   };
 
   return (
-    <button onClick={signInWithGoogle}>
+    <button onClick={signInWithGoogle}
+     className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white px-8 py-6 rounded-full text-lg font-medium shadow-lg hover:shadow-xl transition-all">
       Googleでログイン
     </button>
   );
