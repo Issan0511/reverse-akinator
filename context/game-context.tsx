@@ -19,6 +19,8 @@ interface GameContextType {
   setIsLoading: (loading: boolean) => void
   maxQuestions: number
   remainingQuestions: number
+  isSuccess: boolean
+  giveUp: () => void
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined)
@@ -31,6 +33,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     "neutral",
   )
   const [isLoading, setIsLoading] = useState(false)
+  const [isSuccess, setIsSuccess] = useState(true)
   const maxQuestions = 25
   const remainingQuestions = maxQuestions - questions.length
 
@@ -46,10 +49,21 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const addQuestion = (question: string, answer: string) => {
     setQuestions([...questions, { question, answer }])
 
+    // 「答えに到達」の場合は成功として明示的に設定
+    if (answer === "答えに到達") {
+      setIsSuccess(true)
+    }
+
     // Check if game should end
     if (questions.length + 1 >= maxQuestions) {
+      setIsSuccess(false)
       setStage("result")
     }
+  }
+
+  const giveUp = () => {
+    setIsSuccess(false)
+    setStage("result")
   }
 
   const resetGame = () => {
@@ -57,6 +71,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setQuestions([])
     setStage("intro")
     setWizardEmotion("neutral")
+    setIsSuccess(true)
   }
 
   return (
@@ -74,6 +89,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
         setIsLoading,
         maxQuestions,
         remainingQuestions,
+        isSuccess,
+        giveUp,
       }}
     >
       {children}
