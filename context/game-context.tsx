@@ -42,10 +42,14 @@ interface GameContextType {
   selectedCategory: Category
   setCategory: (category: Category) => void
   isSuccess: boolean
+  // ギブアップフラグを追加
+  didGiveUp: boolean
+
   giveUp: () => void
   // ここで user, loading を追加
   user: any;
   loading: boolean;
+  
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined)
@@ -63,6 +67,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
   // カテゴリー選択状態とその更新関数を追加（初期値は "characters"）
   const [selectedCategory, setCategory] = useState<Category>("characters")
   const [isSuccess, setIsSuccess] = useState(true)
+
+  const [didGiveUp, setDidGiveUp] = useState(false)
+
   const maxQuestions = 25
   const remainingQuestions = maxQuestions - questions.length
 
@@ -124,7 +131,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
   }
 
   const giveUp = () => {
-    setIsSuccess(false)
+    setDidGiveUp(true)    // ギブアップフラグをtrueにする
+    setIsSuccess(false)   // 成功フラグはfalse
     setStage("result")
   }
 
@@ -134,6 +142,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setStage("intro")
     setWizardEmotion("neutral")
     setIsSuccess(true)
+    setDidGiveUp(false) // ギブアップフラグをリセット
   }
 
   return (
@@ -158,6 +167,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
         isSuccess,
         giveUp,
+        didGiveUp, // 追加公開
 
         // ★ userとloadingも一緒に提供
         user,
