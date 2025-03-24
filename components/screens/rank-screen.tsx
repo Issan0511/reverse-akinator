@@ -29,6 +29,7 @@ export default function RankScreen() {
     const q = query(
       collection(db, "leaderboard"),
       where("category", "==", selectedCategory),
+      where("didGiveUp", "==", false),   // ギブアップ勢を除外
       orderBy("questionsCount", "asc"),
       limit(10)
     );

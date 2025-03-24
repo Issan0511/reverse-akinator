@@ -23,38 +23,55 @@ export default function ResultScreen() {
     selectedCategory,     // 取り組んだカテゴリをここで受け取る
     user,  
     setStage,       // ログインしているユーザー情報がある前提
+    didGiveUp,
   } = useGame();
 
   useEffect(() => {
-    // マウント時や結果確定時にFirestoreへ書き込み
     const saveResultToFirestore = async () => {
       try {
-        if (!user || !selectedCategory) {
-          return;
+        if (!user || !selectedCategory) return
+
+        // ドキュメントIDを「カテゴリ+ユーザーID」でユニークに
+        const docRef = doc(db, "leaderboard", `${selectedCategory}-${user.uid}`)
+
+        // ギブアップかどうかで分岐
+        if (didGiveUp) {
+          // ギブアップした場合も上書き保存する
+          // 例として questionsCountを「999」にしたり didGiveUp:true を付けるなど
+          await setDoc(
+            docRef,
+            {
+              category: selectedCategory,
+              userId: user.uid,
+              userName: user.displayName ?? "Anonymous",
+              questionsCount: 999,     // 例: 非常に大きい値で最下位扱いにする
+              didGiveUp: true,         // ギブアップフラグ
+              updatedAt: serverTimestamp(),
+            },
+            { merge: true },
+          )
+        } else {
+          // 通常通りのクリア・失敗（ただしギブアップではない）時
+          await setDoc(
+            docRef,
+            {
+              category: selectedCategory,
+              userId: user.uid,
+              userName: user.displayName ?? "Anonymous",
+              questionsCount: questions.length,
+              didGiveUp: false,  // 明示的に false にしておいても良い
+              updatedAt: serverTimestamp(),
+            },
+            { merge: true },
+          )
         }
-
-        // ドキュメントIDを「カテゴリ+ユーザーID」でユニークにする
-        const docRef = doc(db, "leaderboard", `${selectedCategory}-${user.uid}`);
-
-        await setDoc(
-          docRef,
-          {
-            category: selectedCategory,
-            userId: user.uid,
-            userName: user.displayName ?? "Anonymous", // displayName や他のユーザー名を使用
-            questionsCount: questions.length,
-            updatedAt: serverTimestamp(),
-          },
-          { merge: true } // merge: true を指定すると、既存ドキュメントがあれば上書き保存される
-        );
       } catch (error) {
-        console.error("Error saving result to Firestore:", error);
+        console.error("Error saving result to Firestore:", error)
       }
-    };
+    }
 
-    saveResultToFirestore();
-    // questions.length か category, user が変わるタイミングで再度保存したい場合は依存配列を調整
-  }, [questions.length, selectedCategory, user]);
+    saveResultToFirestore()
+  }, [questions.length, selectedCategory, user, didGiveUp])
   console.log("questions", questions);
   
   const tweetText = isSuccess 
