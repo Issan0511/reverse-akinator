@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useGame } from "@/context/game-context"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
@@ -25,6 +25,25 @@ export default function PlayingScreen() {
 
   const [question, setQuestion] = useState("")
   const [answer, setAnswer] = useState("初期状態")
+  // ★ 1) 残り時間を管理する state
+  const [remainingTime, setRemainingTime] = useState(20) // 180秒 = 3分
+
+  useEffect(() => {
+    if (isLoading) return;
+  
+    const timerId = setInterval(() => {
+      setRemainingTime((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+  
+    return () => clearInterval(timerId);
+  }, [isLoading]);
+  
+  // remainingTime の更新を監視し、0 になったときに giveUp() を呼ぶ
+  useEffect(() => {
+    if (remainingTime === 0) {
+      giveUp();
+    }
+  }, [remainingTime, giveUp]);
 
   const handleSubmitQuestion = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -88,6 +107,11 @@ export default function PlayingScreen() {
     }
   }
 
+  // ★ 3) 残り時間の表示用フォーマット
+  //    分:秒 の形式にしたい場合は以下のように加工
+  const minutes = Math.floor(remainingTime / 60)
+  const seconds = remainingTime % 60
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -103,6 +127,11 @@ export default function PlayingScreen() {
         <div className="w-full md:w-1/2 p-4 flex flex-col">
           <div className="flex-1 overflow-y-auto">
             <QuestionHistory />
+          </div>
+
+          {/* ★ 4) 残り時間を表示 */}
+          <div className="mt-2 text-white text-center">
+            残り時間: {minutes}分{String(seconds).padStart(2, "0")}秒
           </div>
 
           <form onSubmit={handleSubmitQuestion} className="mt-4">
