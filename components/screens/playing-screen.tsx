@@ -65,12 +65,9 @@ export default function PlayingScreen() {
         }),
       })
       const data = await response.json()
-      console.log("Answer:", data)
       // ここで data.answer は次のような形式を想定：
       // { "thinking-process": "～", "judgement": "いいえ" }
       const { judgement, "thinking-process": thinkingProcess } = data.answer;
-      console.log("judgement:", judgement);
-      console.log("thinkingProcess:", thinkingProcess);
       const newAnswer = judgement
       const reason = thinkingProcess
       setAnswer(newAnswer)

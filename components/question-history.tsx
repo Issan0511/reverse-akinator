@@ -15,7 +15,6 @@ export default function QuestionHistory() {
     if (questions.length > 0 && lastQuestionRef.current) {
       // 最後の質問要素を表示するためにスクロール
       lastQuestionRef.current.scrollIntoView({ behavior: 'smooth' })
-      console.log("最後の質問にスクロールしました")
     }
   }, [questions])
   

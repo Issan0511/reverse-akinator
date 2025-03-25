@@ -3,7 +3,6 @@ import type { Character } from "@/types/character"
 
 export async function POST(request: NextRequest) {
   try {
-    console.log("answer-question") 
     const { question, character } = await request.json()
 
     if (!question || !character) {

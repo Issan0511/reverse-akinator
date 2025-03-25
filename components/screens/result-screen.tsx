@@ -72,7 +72,6 @@ export default function ResultScreen() {
 
     saveResultToFirestore()
   }, [questions.length, selectedCategory, user, didGiveUp])
-  console.log("questions", questions);
   
   const tweetText = isSuccess 
     ? `「逆ネーター」で ${questions.length} 問以内に『${selectedCharacter?.name}』を当てられた！\nあなたもプレイしてみよう👇` 
