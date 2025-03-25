@@ -72,7 +72,6 @@ export default function ResultScreen() {
 
     saveResultToFirestore()
   }, [questions.length, selectedCategory, user, didGiveUp])
-  console.log("questions", questions);
   
   const tweetText = isSuccess 
     ? `「逆ネーター」で ${questions.length} 問以内に『${selectedCharacter?.name}』を当てられた！\nあなたもプレイしてみよう👇` 
@@ -141,27 +140,29 @@ export default function ResultScreen() {
           もっと詳しく知る
         </Link>
         <h3 className="text-xl font-bold text-white mb-4">質問履歴</h3>
-        <ul className="space-y-4 text-left">
-          {questions.map((q, index) => (
-            <li key={index}>
-              <Card className="bg-white/10 border-white/20">
-                <CardContent className="p-4">
-                  <div className="text-white/90">
-                    <div className="mb-2">
-                      <span className="font-semibold  text-purple-300">Q:</span> {q.question}
+        <div className="max-h-[500px] overflow-auto pr-2"> {/* スクロール可能なコンテナを追加 */}
+          <ul className="space-y-4 text-left">
+            {questions.map((q, index) => (
+              <li key={index}>
+                <Card className="bg-white/10 border-white/20">
+                  <CardContent className="p-4">
+                    <div className="text-white/90">
+                      <div className="mb-2">
+                        <span className="font-semibold text-purple-300">Q:</span> {q.question}
+                      </div>
+                      <div className="mb-1">
+                        <span className="font-semibold text-sm text-blue-300">A:</span> {q.answer}
+                      </div>
+                      <div className="text-xs text-white/60">
+                        {q.reason}
+                      </div>
                     </div>
-                    <div className="mb-1">
-                      <span className="font-semibold text-sm text-blue-300">A:</span> {q.answer}
-                    </div>
-                    <div className="text-xs text-white/60">
-                      {q.reason}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </li>
-          ))}
-        </ul>
+                  </CardContent>
+                </Card>
+              </li>
+            ))}
+          </ul>
+        </div>
       </motion.div>
 
       <motion.div

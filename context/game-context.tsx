@@ -70,7 +70,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
   const [didGiveUp, setDidGiveUp] = useState(false)
 
-  const maxQuestions = 25
+  const maxQuestions = 20
   const remainingQuestions = maxQuestions - questions.length
 
   useEffect(() => {

@@ -39,7 +39,7 @@ export default function PlayingScreen() {
   const [question, setQuestion] = useState("")
   const [answer, setAnswer] = useState("初期状態")
   // ★ 1) 残り時間を管理する state
-  const [remainingTime, setRemainingTime] = useState(180) // 180秒 = 3分
+  const [remainingTime, setRemainingTime] = useState(10000) // 10分
 
   // コンポーネントマウント時にトップにスクロール
   useEffect(() => {
@@ -83,12 +83,9 @@ export default function PlayingScreen() {
         }),
       })
       const data = await response.json()
-      console.log("Answer:", data)
       // ここで data.answer は次のような形式を想定：
       // { "thinking-process": "～", "judgement": "いいえ" }
       const { judgement, "thinking-process": thinkingProcess } = data.answer;
-      console.log("judgement:", judgement);
-      console.log("thinkingProcess:", thinkingProcess);
       const newAnswer = judgement
       const reason = thinkingProcess
       setAnswer(newAnswer)
