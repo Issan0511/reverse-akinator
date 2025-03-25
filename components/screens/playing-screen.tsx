@@ -41,6 +41,11 @@ export default function PlayingScreen() {
   // ★ 1) 残り時間を管理する state
   const [remainingTime, setRemainingTime] = useState(180) // 180秒 = 3分
 
+  // コンポーネントマウント時にトップにスクロール
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   useEffect(() => {
     if (isLoading) return;
   
