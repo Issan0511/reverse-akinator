@@ -21,10 +21,12 @@ export default function GameScreen() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
-      {/* ユーザーメニュー */}
-      <div className="fixed top-4 right-4 z-50">
-        <UserMenu />
-      </div>
+      {/* ユーザーメニュー - playing画面以外で表示 */}
+      {stage !== "playing" && (
+        <div className="fixed top-4 right-4 z-50">
+          <UserMenu />
+        </div>
+      )}
 
       <AnimatePresence mode="wait">
         {stage === "intro" && <IntroScreen key="intro" />}
