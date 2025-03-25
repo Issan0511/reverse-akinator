@@ -26,7 +26,7 @@ export default function PlayingScreen() {
   const [question, setQuestion] = useState("")
   const [answer, setAnswer] = useState("初期状態")
   // ★ 1) 残り時間を管理する state
-  const [remainingTime, setRemainingTime] = useState(180) // 180秒 = 3分
+  const [remainingTime, setRemainingTime] = useState(10000) // 10分
 
   useEffect(() => {
     if (isLoading) return;
