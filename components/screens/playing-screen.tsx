@@ -117,24 +117,24 @@ export default function PlayingScreen() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="flex flex-col h-full"
+      className="flex flex-col min-h-screen pt-16"
     >
       <div className="p-4 border-b border-white/20">
         <ProgressBar />
       </div>
 
-      <div className="flex flex-col md:flex-row flex-1">
-        <div className="w-full md:w-1/2 p-4 flex flex-col">
-          <div className="flex-1 overflow-y-auto">
+      <div className="flex flex-col md:flex-row flex-1 p-4 gap-8">
+        <div className="w-full md:w-1/2 flex flex-col">
+          <div className="flex-1 overflow-y-auto mb-4">
             <QuestionHistory />
           </div>
 
-          {/* ★ 4) 残り時間を表示 */}
-          <div className="mt-2 text-white text-center">
+          {/* 残り時間を表示 */}
+          <div className="text-white text-center mb-4">
             残り時間: {minutes}分{String(seconds).padStart(2, "0")}秒
           </div>
 
-          <form onSubmit={handleSubmitQuestion} className="mt-4">
+          <form onSubmit={handleSubmitQuestion} className="mb-4">
             <div className="flex gap-2">
               <Input
                 value={question}
@@ -153,7 +153,7 @@ export default function PlayingScreen() {
             </div>
           </form>
           
-          <div className="mt-3 text-center">
+          <div className="text-center mb-4">
             <Button
               onClick={giveUp}
               variant="outline"
@@ -165,8 +165,10 @@ export default function PlayingScreen() {
           </div>
         </div>
 
-        <div className="mt-9 w-full md:w-1/2 p-4 flex items-center justify-center">
-          <WizardCharacter emotion={wizardEmotion} />
+        <div className="w-full md:w-1/2 flex items-center justify-center mt-16 md:mt-8">
+          <div className="relative">
+            <WizardCharacter emotion={wizardEmotion} />
+          </div>
         </div>
       </div>
     </motion.div>
