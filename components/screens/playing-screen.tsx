@@ -10,6 +10,18 @@ import WizardCharacter from "@/components/wizard-character"
 import QuestionHistory from "@/components/question-history"
 import ProgressBar from "@/components/progress-bar"
 
+// カテゴリー名の日本語マッピング
+const categoryNameMapping: Record<string, string> = {
+  "characters": "キャラクター",
+  "animals": "動物",
+  "foods": "食べ物",
+  "places": "場所",
+  "objects": "物",
+  "countries": "国",
+  "persons": "人物",
+  "scienceWords": "理科の用語"
+}
+
 export default function PlayingScreen() {
   const {
     addQuestion,
@@ -21,6 +33,7 @@ export default function PlayingScreen() {
     remainingQuestions,
     setStage,
     giveUp,
+    selectedCategory,
   } = useGame()
 
   const [question, setQuestion] = useState("")
@@ -117,9 +130,14 @@ export default function PlayingScreen() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="flex flex-col min-h-screen pt-16"
+      className="flex flex-col min-h-screen pt-4"
     >
-      <div className="p-4 border-b border-white/20">
+      <div className="px-4 pb-2">
+        <div className="flex justify-start items-center mb-2">
+          <div className="text-white/80">
+            カテゴリー: <span className="font-bold text-white">{categoryNameMapping[selectedCategory] || selectedCategory}</span>
+          </div>
+        </div>
         <ProgressBar />
       </div>
 
