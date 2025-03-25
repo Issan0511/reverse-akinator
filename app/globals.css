@@ -110,3 +110,7 @@ body {
   }
 }
 
+.scroll-area {
+  overflow-y: auto;
+  max-height: 16rem; /* 64px * 4 = 256px */
+}

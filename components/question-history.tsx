@@ -2,6 +2,7 @@
 
 import { useGame } from "@/context/game-context"
 import { motion, AnimatePresence } from "framer-motion"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 export default function QuestionHistory() {
   const { questions } = useGame()
@@ -11,32 +12,33 @@ export default function QuestionHistory() {
   }
 
   return (
-    <div className="space-y-4 p-2">
-      <AnimatePresence>
-        {questions.map((q, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-            className="bg-white/10 p-4 rounded-lg"
-          >
-            <p className="font-medium text-white mb-2">Q: {q.question}</p>
-            <p
-              className={`
-              font-bold 
-              ${q.answer === "はい" ? "text-green-400" : ""} 
-              ${q.answer === "いいえ" ? "text-red-400" : ""} 
-              ${q.answer === "わからない" ? "text-yellow-400" : ""}
-            `}
+    <ScrollArea className="h-64"> {/* Set a fixed height for the ScrollArea component */}
+      <div className="space-y-4 p-2">
+        <AnimatePresence>
+          {questions.map((q, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+              className="bg-white/10 p-4 rounded-lg"
             >
-              A: {q.answer}
-            </p>
-          </motion.div>
-        ))}
-      </AnimatePresence>
-    </div>
+              <p className="font-medium text-white mb-2">Q: {q.question}</p>
+              <p
+                className={`
+                font-bold 
+                ${q.answer === "はい" ? "text-green-400" : ""} 
+                ${q.answer === "いいえ" ? "text-red-400" : ""} 
+                ${q.answer === "わからない" ? "text-yellow-400" : ""}
+              `}
+              >
+                A: {q.answer}
+              </p>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+    </ScrollArea>
   )
 }
-
