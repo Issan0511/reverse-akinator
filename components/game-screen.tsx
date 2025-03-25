@@ -7,9 +7,9 @@ import IntroScreen from "@/components/screens/intro-screen";
 import PlayingScreen from "@/components/screens/playing-screen";
 import ResultScreen from "@/components/screens/result-screen";
 import CategoryScreen from "@/components/screens/category-screen";
-import RankScreen from "@/components/screens/rank-screen"; // ★ ここを追加
+import RankScreen from "@/components/screens/rank-screen";
 import { AnimatePresence } from "framer-motion";
-import LogoutButton from "@/components/login/LogoutButton";
+import UserMenu from "@/components/user-menu";
 
 export default function GameScreen() {
   const { user, loading } = useAuth();
@@ -20,16 +20,12 @@ export default function GameScreen() {
   }
 
   return (
-    <div>
-      {user && (
-        <>
-          <h2 className="text-xl text-white/80">
-            ようこそ {user.displayName ? user.displayName : "ゲスト"} さん
-          </h2>
-          {/* ここにログアウトボタンを表示 */}
-          <LogoutButton />
-        </>
-      )}
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
+      {/* ユーザーメニュー */}
+      <div className="fixed top-4 right-4 z-50">
+        <UserMenu />
+      </div>
+
       <AnimatePresence mode="wait">
         {stage === "intro" && <IntroScreen key="intro" />}
         {stage === "playing" && <PlayingScreen key="playing" />}

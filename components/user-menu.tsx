@@ -29,7 +29,7 @@ export default function UserMenu() {
       <Button
         onClick={() => setIsOpen(!isOpen)}
         variant="ghost"
-        className="relative w-10 h-10 rounded-full bg-white hover:bg-white/90"
+        className="relative w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm"
       >
         <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 flex items-center justify-center text-white font-medium shadow-md">
           {user?.displayName?.[0] || "?"}
