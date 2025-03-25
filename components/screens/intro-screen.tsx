@@ -41,9 +41,9 @@ export default function IntroScreen() {
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: 0.4 }}
-        className="mb-8 relative"
+        className="mb-8 relative w-full max-w-4xl px-4"
       >
-        <div className="flex items-center justify-center space-x-12">
+        <div className="flex items-center justify-center space-x-4 md:space-x-12 scale-50 md:scale-75">
           <WizardCharacter emotion="neutral" />
           <ThoughtBubble />
         </div>
@@ -65,7 +65,7 @@ export default function IntroScreen() {
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.6 }}
-        className="text-center mb-8 max-w-md"
+        className="text-center mb-8 max-w-md px-4"
       >
         <p className="text-white/90 mb-4">
           魔法使いがこれから選ぶカテゴリーの中から何か1つを思い浮かべます。
