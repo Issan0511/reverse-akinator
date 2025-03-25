@@ -4,6 +4,7 @@ import { useGame } from "@/context/game-context";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import WizardCharacter from "@/components/wizard-character";
+import ThoughtBubble from "@/components/thought-bubble";
 
 export default function IntroScreen() {
   const { setStage, setWizardEmotion } = useGame();
@@ -35,14 +36,17 @@ export default function IntroScreen() {
         <p className="text-xl text-white/80"></p>
       </motion.div>
 
-      {/* ウィザードキャラクター */}
+      {/* ウィザードキャラクターと吹き出し */}
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: 0.4 }}
-        className="mb-8"
+        className="mb-8 relative"
       >
-        <WizardCharacter emotion="neutral" />
+        <div className="flex items-center justify-center space-x-12">
+          <WizardCharacter emotion="neutral" />
+          <ThoughtBubble />
+        </div>
       </motion.div>
 
       {/* ゲームタイトルとサブタイトル */}
@@ -85,8 +89,6 @@ export default function IntroScreen() {
           ゲームを始める
         </Button>
       </motion.div>
-
-      
     </motion.div>
   );
 }
