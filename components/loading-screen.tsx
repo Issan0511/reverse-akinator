@@ -1,0 +1,22 @@
+"use client"
+
+import { motion } from "framer-motion"
+
+export default function LoadingScreen() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 flex flex-col items-center justify-center">
+      <div className="text-center">
+        <h2 className="text-2xl font-bold text-white mb-4">Loading</h2>
+        <motion.div
+          className="w-8 h-8 border-4 border-white border-t-transparent rounded-full"
+          animate={{ rotate: 360 }}
+          transition={{
+            duration: 1,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+        />
+      </div>
+    </div>
+  )
+} 

@@ -178,7 +178,12 @@ export default function ResultScreen() {
         </p>
       </motion.div>
 
-      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 1.4 }} className="mb-4">
+      <motion.div 
+        initial={{ y: 20, opacity: 0 }} 
+        animate={{ y: 0, opacity: 1 }} 
+        transition={{ delay: 1.4 }} 
+        className="mb-8"
+      >
         <Link href={tweetUrl} target="_blank" rel="noopener noreferrer">
           <Button
             variant="outline"
@@ -189,8 +194,12 @@ export default function ResultScreen() {
         </Link>
       </motion.div>
 
-
-      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 1 }}>
+      <motion.div 
+        initial={{ y: 20, opacity: 0 }} 
+        animate={{ y: 0, opacity: 1 }} 
+        transition={{ delay: 1 }}
+        className="mb-8"
+      >
         <Button
           onClick={resetGame}
           variant="outline"
@@ -199,9 +208,12 @@ export default function ResultScreen() {
           もう一度遊ぶ
         </Button>
       </motion.div>
-      
 
-      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 1 }}>
+      <motion.div 
+        initial={{ y: 20, opacity: 0 }} 
+        animate={{ y: 0, opacity: 1 }} 
+        transition={{ delay: 1 }}
+      >
         <Button
           onClick={() => setStage("rank")}
           variant="outline"
@@ -210,7 +222,6 @@ export default function ResultScreen() {
           ランキングをみる
         </Button>
       </motion.div>
- 
     </motion.div>
   )
 }
