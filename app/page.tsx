@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import GameScreen from "@/components/game-screen";
+import LoadingScreen from "@/components/loading-screen";
 
 export default function HomePage() {
   const { user, loading } = useAuth();
@@ -17,7 +18,7 @@ export default function HomePage() {
   }, [user, loading, router]);
 
   if (loading) {
-    return <p>Loading...</p>;
+    return <LoadingScreen />;
   }
 
   // 未ログインなら上のuseEffectでリダイレクト -> ここでは nullを返すだけ
