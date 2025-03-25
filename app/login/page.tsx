@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import LoginButton from "@/components/login/LoginButton"; // ← ログインボタンのコンポーネント（Googleログイン等）
+import LoadingScreen from "@/components/loading-screen";
 
 export default function LoginPage() {
   const { user, loading } = useAuth();
@@ -17,7 +18,7 @@ export default function LoginPage() {
   }, [user, loading, router]);
 
   if (loading) {
-    return <p>Loading...</p>;
+    return <LoadingScreen />;
   }
 
   if (user) {
