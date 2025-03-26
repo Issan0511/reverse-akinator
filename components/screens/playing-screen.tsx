@@ -11,6 +11,7 @@ import QuestionHistory from "@/components/question-history"
 import ProgressBar from "@/components/progress-bar"
 import TopicListModal from "@/components/topic-list-modal"
 import { List } from "lucide-react"
+import { set } from "date-fns"
 
 // カテゴリー名の日本語マッピング
 const categoryNameMapping: Record<string, string> = {
@@ -48,6 +49,7 @@ export default function PlayingScreen() {
   // コンポーネントマウント時にトップにスクロール
   useEffect(() => {
     window.scrollTo(0, 0);
+    setWizardEmotion("neutral")
   }, []);
 
   useEffect(() => {
