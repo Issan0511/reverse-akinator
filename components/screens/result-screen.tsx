@@ -5,7 +5,7 @@ import { useGame } from "@/context/game-context"
 
 // --- Firebase 関連 ---
 import { db } from "@/firebase"; // あなたの Firebase 初期化ファイル
-import { doc, setDoc, serverTimestamp, query } from "firebase/firestore";
+import { doc, setDoc, serverTimestamp, query, getDoc } from "firebase/firestore";
 
 import { motion } from "framer-motion"
 import Link from "next/link"
@@ -31,39 +31,48 @@ export default function ResultScreen() {
       try {
         if (!user || !selectedCategory) return
 
-        // ドキュメントIDを「カテゴリ+ユーザーID」でユニークに
+        // ドキュメントIDを「カテゴリ+ユーザーID」で固定（最高記録のみを保存）
         const docRef = doc(db, "leaderboard", `${selectedCategory}-${user.uid}`)
 
         // ギブアップかどうかで分岐
         if (didGiveUp) {
-          // ギブアップした場合も上書き保存する
-          // 例として questionsCountを「999」にしたり didGiveUp:true を付けるなど
-          await setDoc(
-            docRef,
-            {
-              category: selectedCategory,
-              userId: user.uid,
-              userName: user.displayName ?? "Anonymous",
-              questionsCount: 999,     // 例: 非常に大きい値で最下位扱いにする
-              didGiveUp: true,         // ギブアップフラグ
-              updatedAt: serverTimestamp(),
-            },
-            { merge: true },
-          )
+          // ギブアップした場合は、既存の記録がない場合のみ保存
+          const docSnap = await getDoc(docRef);
+          if (!docSnap.exists()) {
+            await setDoc(
+              docRef,
+              {
+                category: selectedCategory,
+                userId: user.uid,
+                userName: user.displayName ?? "Anonymous",
+                questionsCount: 999,
+                didGiveUp: true,
+                updatedAt: serverTimestamp(),
+              },
+              { merge: true },
+            )
+          }
         } else {
-          // 通常通りのクリア・失敗（ただしギブアップではない）時
-          await setDoc(
-            docRef,
-            {
-              category: selectedCategory,
-              userId: user.uid,
-              userName: user.displayName ?? "Anonymous",
-              questionsCount: questions.length,
-              didGiveUp: false,  // 明示的に false にしておいても良い
-              updatedAt: serverTimestamp(),
-            },
-            { merge: true },
-          )
+          // 通常のクリア・失敗時は、既存の記録と比較して良い方のみ保存
+          const docSnap = await getDoc(docRef);
+          const currentRecord = docSnap.exists() ? docSnap.data() : null;
+          
+          if (!currentRecord || 
+              (currentRecord.didGiveUp && !didGiveUp) || 
+              (currentRecord.questionsCount > questions.length && !didGiveUp)) {
+            await setDoc(
+              docRef,
+              {
+                category: selectedCategory,
+                userId: user.uid,
+                userName: user.displayName ?? "Anonymous",
+                questionsCount: questions.length,
+                didGiveUp: false,
+                updatedAt: serverTimestamp(),
+              },
+              { merge: true },
+            )
+          }
         }
       } catch (error) {
         console.error("Error saving result to Firestore:", error)
@@ -181,7 +190,7 @@ export default function ResultScreen() {
       <motion.div 
         initial={{ y: 20, opacity: 0 }} 
         animate={{ y: 0, opacity: 1 }} 
-        transition={{ delay: 1.4 }} 
+        transition={{ delay: 1 }}
         className="mb-8"
       >
         <Link href={tweetUrl} target="_blank" rel="noopener noreferrer">
