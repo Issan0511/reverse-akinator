@@ -1,12 +1,15 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useGame } from "@/context/game-context";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import WizardCharacter from "@/components/wizard-character";
 import type { Category } from "@/types/character";
-import { Sparkles, MapPin, Cat, Tv, Globe, User, Atom } from "lucide-react";
+import { Sparkles, MapPin, Cat, Tv, Globe, User, Atom, AlertTriangle } from "lucide-react";
+// Firestore周りのimport追加
+import { db } from "@/firebase";
+import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 
 export default function CategoryScreen() {
   const {
@@ -15,31 +18,65 @@ export default function CategoryScreen() {
     setCategory,
     setWizardEmotion,
     selectRandomCharacter,
+    user,
   } = useGame();
 
+  // 激ムズモードを今日すでにプレイしたかどうか
+  const [isGekiMuzuPlayed, setIsGekiMuzuPlayed] = useState(false);
+  
+  // 初回レンダー判定 (必要なら活用)
   const isFirstRender = useRef(true);
 
-  // selectedCategory の変更を監視し、更新されたらキャラクター選択を実行
+  // 選択されたカテゴリーが変わった時、gekiMuzu 以外ならキャラ選択
   useEffect(() => {
-    if (selectedCategory) {
+    if (selectedCategory && selectedCategory !== "gekiMuzu") {
       selectRandomCharacter();
     }
-    // 依存配列は selectedCategory のみ
   }, [selectedCategory]);
 
-  // カテゴリーを選択したときに呼び出される関数
-  const handleCategorySelect = (category: Category) => {
-    // ウィザードの感情を "excited" に変更
+  // 激ムズモードのプレイ状況をチェック
+  useEffect(() => {
+    const checkGekiMuzuStatus = async () => {
+      if (!user) return;
+
+      const docRef = doc(db, "dailyChallenges", user.uid);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        const lastPlayed = data.lastPlayed?.toDate();
+        const today = new Date();
+
+        // lastPlayed が今日の日付と同じならプレイ済み
+        if (lastPlayed && lastPlayed.toDateString() === today.toDateString()) {
+          setIsGekiMuzuPlayed(true);
+        }
+      }
+    };
+
+    checkGekiMuzuStatus();
+  }, [user]);
+
+  // カテゴリー選択処理
+  const handleCategorySelect = async (category: Category) => {
+    // ウィザードの感情を「excited」に
     setWizardEmotion("excited");
-    // 選択されたカテゴリーをセット
+    // カテゴリーをセット
     setCategory(category);
-    // 1秒後にゲーム画面へ進む
+
+    // 激ムズモードなら、プレイ日時を記録
+    if (category === "gekiMuzu" && user) {
+      const docRef = doc(db, "dailyChallenges", user.uid);
+      await setDoc(docRef, { lastPlayed: serverTimestamp() }, { merge: true });
+    }
+
+    // 1秒後にゲーム画面へ
     setTimeout(() => {
       setStage("playing");
     }, 1000);
   };
 
-  // カテゴリーデータ
+  // カテゴリーデータ（激ムズを追加）
   const categories = [
     {
       id: "prefecture",
@@ -88,6 +125,14 @@ export default function CategoryScreen() {
       icon: <Atom className="h-5 w-5" />,
       gradient:
         "from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700",
+    },
+    {
+      id: "gekiMuzu",
+      name: "デイリーモード(激ムズ)",
+      level: "激ムズ",
+      icon: <AlertTriangle className="h-5 w-5" />,
+      gradient:
+        "from-black to-gray-800 hover:from-gray-900 hover:to-gray-700",
     },
   ];
 
@@ -186,6 +231,8 @@ export default function CategoryScreen() {
               <Button
                 onClick={() => handleCategorySelect(category.id as Category)}
                 className={`bg-gradient-to-r ${category.gradient} text-white px-8 py-6 rounded-xl text-lg font-medium shadow-lg hover:shadow-xl transition-all w-full game-font border border-white/20 flex items-center justify-between`}
+                // 「gekiMuzu」かつプレイ済みなら押せないように
+                disabled={category.id === "gekiMuzu" && isGekiMuzuPlayed}
               >
                 <div className="flex items-center">
                   <span className="bg-white/20 p-2 rounded-full mr-3">
