@@ -15,6 +15,9 @@ import { scienceWords } from "@/data/scienceWords"
 import type { ScienceWord } from "@/types/character"
 import { prefectures } from "@/data/prefectures"
 import type { prefecture } from "@/types/character"
+import { collection, addDoc, serverTimestamp } from "firebase/firestore"
+import { auth } from "@/firebase/firebaseConfig"
+import { db } from "@/firebase/firebaseConfig"
 
 // 選択可能なカテゴリーを定義（必要に応じて追加してください）
 export type Category = "characters" | "animals" | "countries"| "programs" | "scienceWords" | "persons" | "prefecture"
@@ -51,6 +54,8 @@ interface GameContextType {
   // 回答権の状態を追加
   remainingAnswerAttempts: number
   decrementAnswerAttempts: () => void
+  usedHint: boolean
+  setUsedHint: (used: boolean) => void
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined)
@@ -70,8 +75,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const [isSuccess, setIsSuccess] = useState(true)
 
   const [didGiveUp, setDidGiveUp] = useState(false)
-  // 回答権の状態を追加（初期値3）
-  const [remainingAnswerAttempts, setRemainingAnswerAttempts] = useState(3)
+  // 回答権の状態を追加（無限大に設定）
+  const [remainingAnswerAttempts, setRemainingAnswerAttempts] = useState(Infinity)
+  const [usedHint, setUsedHint] = useState(false)
 
   const maxQuestions = 20
   const remainingQuestions = maxQuestions - questions.length
@@ -122,12 +128,52 @@ export function GameProvider({ children }: { children: ReactNode }) {
   
   
 
-  const addQuestion = (question: string, answer: string, reason?:string) => {
+  const addQuestion = async (question: string, answer: string, reason?: string) => {
     setQuestions([...questions, { question, answer, reason }])
 
     // 「答えに到達」の場合は成功として明示的に設定
     if (answer === "答えに到達") {
       setIsSuccess(true)
+      // ヒントを使用していない場合のみランキングに登録
+      if (!usedHint) {
+        try {
+          const user = auth.currentUser
+          if (!user) {
+            console.log("ランキングに登録するにはログインが必要です")
+            return
+          }
+
+          if (!selectedCategory || !selectedCharacter) {
+            console.error("カテゴリーまたはキャラクターが選択されていません")
+            return
+          }
+
+          console.log("ランキング登録開始:", {
+            userId: user.uid,
+            category: selectedCategory,
+            characterId: selectedCharacter.id,
+            questionCount: questions.length
+          })
+
+          const rankingRef = collection(db, "rankings")
+          const newRanking = {
+            userId: user.uid,
+            category: selectedCategory,
+            characterId: selectedCharacter.id,
+            questionCount: questions.length,
+            createdAt: serverTimestamp(),
+          }
+          await addDoc(rankingRef, newRanking)
+          console.log("ランキングに登録しました")
+        } catch (error) {
+          console.error("ランキング登録エラー:", error)
+          if (error instanceof Error) {
+            console.error("エラーの詳細:", error.message)
+          }
+        }
+      } else {
+        console.log("ヒントを使用したため、ランキングには登録されません")
+      }
     }
 
     // Check if game should end
@@ -143,9 +189,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setStage("result")
   }
 
-  // 回答権を減らす関数
+  // 回答権を減らす関数（無効化）
   const decrementAnswerAttempts = () => {
-    setRemainingAnswerAttempts((prev) => Math.max(0, prev - 1))
+    // 何もしない（回答権は減らない）
   }
 
   const resetGame = () => {
@@ -155,7 +201,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setWizardEmotion("neutral")
     setIsSuccess(true)
     setDidGiveUp(false) // ギブアップフラグをリセット
-    setRemainingAnswerAttempts(3) // 回答権をリセット
+    setRemainingAnswerAttempts(Infinity) // 回答権をリセット
+    setUsedHint(false) // ゲームリセット時にヒント使用状態もリセット
   }
 
   return (
@@ -188,6 +235,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
         // 回答権の状態を追加
         remainingAnswerAttempts,
         decrementAnswerAttempts,
+        usedHint,
+        setUsedHint,
 
       }}
     >
