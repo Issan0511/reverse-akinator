@@ -1,4 +1,3 @@
-
 "use client"
 
 import type React from "react"
@@ -40,6 +39,7 @@ export default function PlayingScreen() {
     setStage,
     giveUp,
     selectedCategory,
+    setUsedHint,
   } = useGame();
 
   const [question, setQuestion] = useState("");
@@ -152,7 +152,12 @@ export default function PlayingScreen() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setIsTopicListOpen(true)}
+            onClick={() => {
+              console.log("ヒントボタンが押されました");
+              setUsedHint(true);
+              console.log("setUsedHint(true)が呼び出されました");
+              setIsTopicListOpen(true);
+            }}
             className="bg-gray-800 hover:bg-gray-700 text-white border-gray-700"
           >
             <List className="w-4 h-4 mr-2" />
