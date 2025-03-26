@@ -133,52 +133,62 @@ export function GameProvider({ children }: { children: ReactNode }) {
   
 
   const addQuestion = async (question: string, answer: string, reason?: string) => {
-
+    console.log("addQuestion開始:", { question, answer, reason, usedHint });
     setQuestions([...questions, { question, answer, reason }])
+
+    // デバッグログを追加
+    console.log("デバッグ情報:", {
+      usedHint,
+      answer,
+      willRegisterRanking: !usedHint && answer === "答えに到達"
+    });
 
     // 「答えに到達」の場合は成功として明示的に設定
     if (answer === "答えに到達") {
       setIsSuccess(true)
-      // ヒントを使用していない場合のみランキングに登録
-      if (!usedHint) {
-        try {
-          const user = auth.currentUser
-          if (!user) {
-            console.log("ランキングに登録するにはログインが必要です")
-            return
-          }
+      console.log("答えに到達しました。usedHint:", usedHint);
+    }
 
-          if (!selectedCategory || !selectedCharacter) {
-            console.error("カテゴリーまたはキャラクターが選択されていません")
-            return
-          }
-
-          console.log("ランキング登録開始:", {
-            userId: user.uid,
-            category: selectedCategory,
-            characterId: selectedCharacter.id,
-            questionCount: questions.length
-          })
-
-          const rankingRef = collection(db, "rankings")
-          const newRanking = {
-            userId: user.uid,
-            category: selectedCategory,
-            characterId: selectedCharacter.id,
-            questionCount: questions.length,
-            createdAt: serverTimestamp(),
-          }
-          await addDoc(rankingRef, newRanking)
-          console.log("ランキングに登録しました")
-        } catch (error) {
-          console.error("ランキング登録エラー:", error)
-          if (error instanceof Error) {
-            console.error("エラーの詳細:", error.message)
-          }
+    // ヒントを使用していない場合のみランキングに登録
+    if (!usedHint && answer === "答えに到達") {
+      console.log("ランキング登録条件を満たしています。登録処理を開始します。");
+      try {
+        const user = auth.currentUser
+        if (!user) {
+          console.log("ランキングに登録するにはログインが必要です")
+          return
         }
-      } else {
-        console.log("ヒントを使用したため、ランキングには登録されません")
+
+        if (!selectedCategory || !selectedCharacter) {
+          console.error("カテゴリーまたはキャラクターが選択されていません")
+          return
+        }
+
+        console.log("ランキング登録開始:", {
+          userId: user.uid,
+          category: selectedCategory,
+          characterId: selectedCharacter.id,
+          questionCount: questions.length
+        })
+
+        const rankingRef = collection(db, "rankings")
+        const newRanking = {
+          userId: user.uid,
+          category: selectedCategory,
+          characterId: selectedCharacter.id,
+          questionCount: questions.length,
+          createdAt: serverTimestamp(),
+        }
+        await addDoc(rankingRef, newRanking)
+        console.log("ランキングに登録しました")
+      } catch (error) {
+        console.error("ランキング登録エラー:", error)
+        if (error instanceof Error) {
+          console.error("エラーの詳細:", error.message)
+        }
       }
+    } else if (answer === "答えに到達") {
+      console.log("ヒントを使用したため、ランキングには登録されません")
     }
 
     // Check if game should end
