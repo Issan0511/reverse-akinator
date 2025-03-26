@@ -1,16 +1,17 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useGame } from "@/context/game-context"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import WizardCharacter from "@/components/wizard-character"
 import type { Category } from "@/types/character"
-
-
+import { db } from "@/firebase"
+import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore"
 
 export default function CategoryScreen() {
-  const { selectedCategory, setStage, setCategory, setWizardEmotion, selectRandomCharacter } = useGame()
+  const { selectedCategory, setStage, setCategory, setWizardEmotion, selectRandomCharacter, user } = useGame()
+  const [isGekiMuzuPlayed, setIsGekiMuzuPlayed] = useState(false)
   
   const isFirstRender = useRef(true)
 
@@ -21,17 +22,43 @@ export default function CategoryScreen() {
     }
     // 依存配列は selectedCategory のみ
   }, [selectedCategory])
-  
 
+  // 激ムズモードのプレイ状況を取得
+  useEffect(() => {
+    const checkGekiMuzuStatus = async () => {
+      if (!user) return
+
+      const docRef = doc(db, "gekiMuzuStatus", user.uid)
+      const docSnap = await getDoc(docRef)
+
+      if (docSnap.exists()) {
+        const data = docSnap.data()
+        const lastPlayed = data.lastPlayed?.toDate()
+        const today = new Date()
+
+        if (lastPlayed && lastPlayed.toDateString() === today.toDateString()) {
+          setIsGekiMuzuPlayed(true)
+        }
+      }
+    }
+
+    checkGekiMuzuStatus()
+  }, [user])
 
   // カテゴリーを選択したときに呼び出される関数
-  const handleCategorySelect = (category: Category) => {
+  const handleCategorySelect = async (category: Category) => {
     // ウィザードの感情を "excited" に変更
     setWizardEmotion("excited")
     // 選択されたカテゴリーをセット
     setCategory(category)
-    // カテゴリー選択後にキャラクターをランダムに選ぶ
-    // selectRandomCharacter() ここでは呼ばない
+
+    if (category === "gekiMuzu") {
+      if (!user) return
+
+      const docRef = doc(db, "gekiMuzuStatus", user.uid)
+      await setDoc(docRef, { lastPlayed: serverTimestamp() }, { merge: true })
+    }
+
     // 1秒後にゲーム画面へ進む
     setTimeout(() => {
       setStage("playing")
@@ -110,6 +137,13 @@ export default function CategoryScreen() {
             className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white px-8 py-6 rounded-full text-lg font-medium shadow-lg hover:shadow-xl transition-all"
           >
             理系用語　(超上級)
+          </Button>
+          <Button
+            onClick={() => handleCategorySelect("gekiMuzu")}
+            className="bg-gradient-to-r from-black to-gray-800 hover:from-gray-900 hover:to-gray-700 text-white px-8 py-6 rounded-full text-lg font-medium shadow-lg hover:shadow-xl transition-all"
+            disabled={isGekiMuzuPlayed}
+          >
+            激ムズモード
           </Button>
         </motion.div>
       </div>

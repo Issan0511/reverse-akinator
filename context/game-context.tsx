@@ -15,9 +15,11 @@ import { scienceWords } from "@/data/scienceWords"
 import type { ScienceWord } from "@/types/character"
 import { prefectures } from "@/data/prefectures"
 import type { prefecture } from "@/types/character"
+import { db } from "@/firebase"
+import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore"
 
 // 選択可能なカテゴリーを定義（必要に応じて追加してください）
-export type Category = "characters" | "animals" | "countries"| "programs" | "scienceWords" | "persons" | "prefecture"
+export type Category = "characters" | "animals" | "countries"| "programs" | "scienceWords" | "persons" | "prefecture" | "gekiMuzu"
 
 type GameStage = "intro" | "playing" | "result"| "category"| "rank"
 
@@ -116,12 +118,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setSelectedCharacter(dataSource[randomIndex] || null);
   };
   
-  
-  
-  
-  
-  
-
   const addQuestion = (question: string, answer: string, reason?:string) => {
     setQuestions([...questions, { question, answer, reason }])
 
@@ -158,6 +154,40 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setRemainingAnswerAttempts(3) // 回答権をリセット
   }
 
+  // 激ムズモードの固定トピックを取得する関数
+  const getFixedGekiMuzuTopic = async () => {
+    if (!user) return null;
+
+    const docRef = doc(db, "gekiMuzuTopics", user.uid);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      const today = new Date().toDateString();
+
+      if (data.date === today) {
+        return data.topic;
+      }
+    }
+
+    // トピックが存在しない場合、新しいトピックを設定
+    const newTopic = characters[Math.floor(Math.random() * characters.length)];
+    await setDoc(docRef, { topic: newTopic, date: new Date().toDateString() });
+
+    return newTopic;
+  };
+
+  const handleCategorySelect = async (category: Category) => {
+    setCategory(category);
+
+    if (category === "gekiMuzu") {
+      const fixedTopic = await getFixedGekiMuzuTopic();
+      setSelectedCharacter(fixedTopic);
+    } else {
+      selectRandomCharacter();
+    }
+  };
+
   return (
     <GameContext.Provider
       value={{
@@ -165,7 +195,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
         setStage,
         selectedCharacter,
         selectedCategory,
-        setCategory,
+        setCategory: handleCategorySelect,
         questions,
         addQuestion,
         resetGame,
