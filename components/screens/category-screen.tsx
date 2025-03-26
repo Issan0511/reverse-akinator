@@ -105,6 +105,12 @@ export default function CategoryScreen() {
           >
             理科の用語
           </Button>
+          <Button
+            onClick={() => handleCategorySelect("prefecture")}
+            className="bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-white px-8 py-6 rounded-full text-lg font-medium shadow-lg hover:shadow-xl transition-all"
+          >
+            都道府県
+          </Button>
         </motion.div>
       </div>
     </motion.div>
