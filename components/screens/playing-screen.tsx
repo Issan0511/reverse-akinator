@@ -1,27 +1,27 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useEffect } from "react"
-import { useGame } from "@/context/game-context"
-import { motion } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import WizardCharacter from "@/components/wizard-character"
-import QuestionHistory from "@/components/question-history"
-import ProgressBar from "@/components/progress-bar"
+import type React from "react";
+import { useState, useEffect } from "react";
+import { useGame } from "@/context/game-context";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import WizardCharacter from "@/components/wizard-character";
+import QuestionHistory from "@/components/question-history";
+import ProgressBar from "@/components/progress-bar";
 
 // カテゴリー名の日本語マッピング
 const categoryNameMapping: Record<string, string> = {
-  "characters": "キャラクター",
-  "animals": "動物",
-  "foods": "食べ物",
-  "places": "場所",
-  "objects": "物",
-  "countries": "国",
-  "persons": "人物",
-  "scienceWords": "理科の用語",
-  "prefecture": "都道府県"
-}
+  characters: "キャラクター",
+  animals: "動物",
+  foods: "食べ物",
+  places: "場所",
+  objects: "物",
+  countries: "国",
+  persons: "人物",
+  scienceWords: "理科の用語",
+  prefecture: "都道府県",
+};
 
 export default function PlayingScreen() {
   const {
@@ -35,12 +35,12 @@ export default function PlayingScreen() {
     setStage,
     giveUp,
     selectedCategory,
-  } = useGame()
+  } = useGame();
 
-  const [question, setQuestion] = useState("")
-  const [answer, setAnswer] = useState("初期状態")
+  const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState("初期状態");
   // ★ 1) 残り時間を管理する state
-  const [remainingTime, setRemainingTime] = useState(10000) // 10分
+  const [remainingTime, setRemainingTime] = useState(10000); // 10分
 
   // コンポーネントマウント時にトップにスクロール
   useEffect(() => {
@@ -49,14 +49,14 @@ export default function PlayingScreen() {
 
   useEffect(() => {
     if (isLoading) return;
-  
+
     const timerId = setInterval(() => {
       setRemainingTime((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);
-  
+
     return () => clearInterval(timerId);
   }, [isLoading]);
-  
+
   // remainingTime の更新を監視し、0 になったときに giveUp() を呼ぶ
   useEffect(() => {
     if (remainingTime === 0) {
@@ -65,68 +65,96 @@ export default function PlayingScreen() {
   }, [remainingTime, giveUp]);
 
   const handleSubmitQuestion = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (!question.trim() || isLoading) return
+    if (!question.trim() || isLoading) return;
 
-    setIsLoading(true)
-    setWizardEmotion("thinking")
+    setIsLoading(true);
+    setWizardEmotion("thinking");
 
     try {
+      // character が存在するか確認
+      if (!selectedCharacter) {
+        console.error("No character selected");
+        setWizardEmotion("confused");
+        setAnswer("エラーが発生しました: キャラクターが選択されていません");
+        setIsLoading(false);
+        return;
+      }
+
+      // リクエストボディをログに出力
+      const requestBody = {
+        question: question.trim(),
+        character: selectedCharacter,
+      };
+      console.log("Request body:", requestBody);
+
       const response = await fetch("/api/answer-question", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          question,
-          character: selectedCharacter,
-        }),
-      })
-      const data = await response.json()
+        body: JSON.stringify(requestBody),
+      });
+
+      // エラーレスポンスの詳細を取得
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("API error response:", errorText);
+        throw new Error(`API responded with status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("API response data:", data); // デバッグ用
+
+      // data.answer が undefined でないことを確認
+      if (!data.answer) {
+        console.error("API response missing answer property:", data);
+        setWizardEmotion("confused");
+        setAnswer("エラーが発生しました");
+        setIsLoading(false);
+        return;
+      }
+
       // ここで data.answer は次のような形式を想定：
       // { "thinking-process": "～", "judgement": "いいえ" }
       const { judgement, "thinking-process": thinkingProcess } = data.answer;
-      const newAnswer = judgement
-      const reason = thinkingProcess
-      setAnswer(newAnswer)
-      // 例として、思考過程も履歴に残したい場合は addQuestion を拡張する
-      setTimeout(() => {
-        // addQuestion(question, judgement) の代わりに、必要なら思考過程も渡す
-        addQuestion(question, 
-          newAnswer  ,reason      )
-        setQuestion("")
+      const newAnswer = judgement;
+      const reason = thinkingProcess;
+      setAnswer(newAnswer);
 
-        // ウィザードの表情は judgement によって変化
-        if (newAnswer === "はい") {
-          setWizardEmotion("happy")
-        } else if (newAnswer === "いいえ") {
-          setWizardEmotion("neutral")
-        } else if (newAnswer === "答えに到達") {
-          setWizardEmotion("excited") // お好みで変更
-        } else {
-          setWizardEmotion("confused")
-        }
-        setIsLoading(false)
-        
-        // 残りの質問がなくなったら結果画面へ
-        if (remainingQuestions <= 1||newAnswer === "答えに到達") {
-          setTimeout(() => {
-            setStage("result")
-          }, 1000)
-        }
-      }, 1500)
+      // 感情を設定
+      if (newAnswer === "はい") {
+        setWizardEmotion("yes");
+      } else if (newAnswer === "いいえ") {
+        setWizardEmotion("no");
+      } else if (newAnswer === "部分的にはい") {
+        setWizardEmotion("partially");
+      } else if (newAnswer === "答えに到達") {
+        setWizardEmotion("excited");
+        // 正解の場合は結果画面に遷移
+        setTimeout(() => {
+          setStage("result");
+        }, 1500);
+      } else {
+        setWizardEmotion("confused");
+      }
+
+      // 質問と回答を履歴に追加
+      addQuestion(question, newAnswer, reason);
+      setQuestion("");
+      setIsLoading(false);
     } catch (error) {
-      console.error("Error getting answer:", error)
-      setWizardEmotion("confused")
-      setIsLoading(false)
+      console.error("Error getting answer:", error);
+      setWizardEmotion("confused");
+      setIsLoading(false);
     }
-  }
+  };
 
   // ★ 3) 残り時間の表示用フォーマット
   //    分:秒 の形式にしたい場合は以下のように加工
-  const minutes = Math.floor(remainingTime / 60)
-  const seconds = remainingTime % 60
+  const minutes = Math.floor(remainingTime / 60);
+  const seconds = remainingTime % 60;
 
   return (
     <motion.div
@@ -138,7 +166,10 @@ export default function PlayingScreen() {
       <div className="px-4 pb-2">
         <div className="flex justify-start items-center mb-2">
           <div className="text-white/80">
-            カテゴリー: <span className="font-bold text-white">{categoryNameMapping[selectedCategory] || selectedCategory}</span>
+            カテゴリー:{" "}
+            <span className="font-bold text-white">
+              {categoryNameMapping[selectedCategory] || selectedCategory}
+            </span>
           </div>
         </div>
         <ProgressBar />
@@ -173,7 +204,7 @@ export default function PlayingScreen() {
               </Button>
             </div>
           </form>
-          
+
           <div className="text-center mb-4">
             <Button
               onClick={giveUp}
@@ -188,10 +219,10 @@ export default function PlayingScreen() {
 
         <div className="w-full md:w-1/2 flex items-center justify-center mt-16 md:mt-8">
           <div className="relative">
-            <WizardCharacter emotion={wizardEmotion} />
+            <WizardCharacter emotion={wizardEmotion} size="large" />
           </div>
         </div>
       </div>
     </motion.div>
-  )
+  );
 }

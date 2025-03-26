@@ -1,82 +1,136 @@
-"use client"
+"use client";
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-import { useCallback } from "react"
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  type ReactNode,
+} from "react";
+import { useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { characters } from "@/data/characters"
-import type { Character } from "@/types/character"
-import { countries } from "@/data/countries"
-import type { Country } from "@/types/character"
-import { animals } from "@/data/animals"
-import type { Animal } from "@/types/character"
-import { persons } from "@/data/persons"
-import type { Person } from "@/types/character"
-import { scienceWords } from "@/data/scienceWords"
-import type { ScienceWord } from "@/types/character"
-import { prefectures } from "@/data/prefectures"
-import type { prefecture } from "@/types/character"
+import { characters } from "@/data/characters";
+import type { Character } from "@/types/character";
+import { countries } from "@/data/countries";
+import type { Country } from "@/types/character";
+import { animals } from "@/data/animals";
+import type { Animal } from "@/types/character";
+import { persons } from "@/data/persons";
+import type { Person } from "@/types/character";
+import { scienceWords } from "@/data/scienceWords";
+import type { ScienceWord } from "@/types/character";
+import { prefectures } from "@/data/prefectures";
+import type { prefecture } from "@/types/character";
 
 // 選択可能なカテゴリーを定義（必要に応じて追加してください）
-export type Category = "characters" | "animals" | "countries"| "programs" | "scienceWords" | "persons" | "prefecture"
+export type Category =
+  | "characters"
+  | "animals"
+  | "countries"
+  | "programs"
+  | "scienceWords"
+  | "persons"
+  | "prefecture";
 
-type GameStage = "intro" | "playing" | "result"| "category"| "rank"
+type GameStage = "intro" | "playing" | "result" | "category" | "rank";
 
 // selectedCharacter をユニオン型にする
-type SelectedCharacter = Character | Animal | Country | prefecture | null
+type SelectedCharacter = Character | Animal | Country | prefecture | null;
 
-interface GameContextType {
-  stage: GameStage
-  setStage: (stage: GameStage) => void
-  selectedCharacter: SelectedCharacter
-  selectRandomCharacter: () => void
-  questions: { question: string; answer: string; reason?: string }[]
-  addQuestion: (question: string, answer: string, reason?: string ) => void
-  resetGame: () => void
-  wizardEmotion: "neutral" | "thinking" | "happy" | "excited" | "confused"
-  setWizardEmotion: (emotion: "neutral" | "thinking" | "happy" | "excited" | "confused") => void
-  isLoading: boolean
-  setIsLoading: (loading: boolean) => void
-  maxQuestions: number
-  remainingQuestions: number
-  selectedCategory: Category
-  setCategory: (category: Category) => void
-  isSuccess: boolean
-  // ギブアップフラグを追加
-  didGiveUp: boolean
-
-  giveUp: () => void
-  // ここで user, loading を追加
-  user: any;
-  loading: boolean;
-  
+// 回答の型定義
+interface Answer {
+  "thinking-process": string;
+  judgement: "はい" | "いいえ" | "部分的にはい" | "分からない" | "答えに到達";
 }
 
-const GameContext = createContext<GameContextType | undefined>(undefined)
+// GameContextType の型定義に setCharacter を追加
+export type GameContextType = {
+  stage: GameStage;
+  setStage: (stage: GameStage) => void;
+  selectedCharacter: SelectedCharacter;
+  selectRandomCharacter: () => void;
+  questions: string[];
+  answers: Answer[];
+  currentAnswer: Answer | null;
+  askQuestion: (question: string) => void;
+  isLoading: boolean;
+  giveUp: () => void;
+  resetGame: () => void;
+  maxQuestions: number;
+  remainingQuestions: number;
+  remainingGuesses: number;
+  remainingTime: number;
+  score: number;
+  setScore: (score: number) => void;
+  selectedCategory: Category;
+  setCategory: (category: Category) => void;
+  isSuccess: boolean;
+  didGiveUp: boolean;
+  user: any;
+  loading: boolean;
+  setCharacter: (character: any) => void;
+  setIsLoading: (loading: boolean) => void;
+  wizardEmotion:
+    | "neutral"
+    | "thinking"
+    | "happy"
+    | "excited"
+    | "confused"
+    | "yes"
+    | "no"
+    | "partially";
+  setWizardEmotion: (
+    emotion:
+      | "neutral"
+      | "thinking"
+      | "happy"
+      | "excited"
+      | "confused"
+      | "yes"
+      | "no"
+      | "partially"
+  ) => void;
+  addQuestion: (question: string, answer: string, reason?: string) => void;
+};
+
+const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export function GameProvider({ children }: { children: ReactNode }) {
-  const [stage, setStage] = useState<GameStage>("intro")
   const { user, loading } = useAuth(); // ★ ここでFirebaseのユーザー情報を取得
+  const [stage, setStage] = useState<GameStage>("intro");
   // 選択されたキャラクターをユニオン型で扱う
-  const [selectedCharacter, setSelectedCharacter] = useState<SelectedCharacter>(null)
-  const [questions, setQuestions] = useState<{ question: string; answer: string ; reason? : string}[]>([])
-  const [wizardEmotion, setWizardEmotion] = useState<"neutral" | "thinking" | "happy" | "excited" | "confused">(
-    "neutral",
-  )
-  const [isLoading, setIsLoading] = useState(false)
+  const [selectedCharacter, setSelectedCharacter] =
+    useState<SelectedCharacter>(null);
+  const [questions, setQuestions] = useState<string[]>([]);
+  const [answers, setAnswers] = useState<Answer[]>([]);
+  const [currentAnswer, setCurrentAnswer] = useState<Answer | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   // カテゴリー選択状態とその更新関数を追加（初期値は "characters"）
-  const [selectedCategory, setCategory] = useState<Category>("characters")
-  const [isSuccess, setIsSuccess] = useState(true)
+  const [selectedCategory, setCategory] = useState<Category>("characters");
+  const [isSuccess, setIsSuccess] = useState(true);
+  const [score, setScore] = useState(0);
+  const [remainingTime, setRemainingTime] = useState(10 * 60); // 10分
+  const [remainingGuesses, setRemainingGuesses] = useState(3); // 3回の回答権
+  const [didGiveUp, setDidGiveUp] = useState(false);
+  const [wizardEmotion, setWizardEmotion] = useState<
+    | "neutral"
+    | "thinking"
+    | "happy"
+    | "excited"
+    | "confused"
+    | "yes"
+    | "no"
+    | "partially"
+  >("neutral");
 
-  const [didGiveUp, setDidGiveUp] = useState(false)
-
-  const maxQuestions = 20
-  const remainingQuestions = maxQuestions - questions.length
+  const maxQuestions = 20;
+  const remainingQuestions = maxQuestions - questions.length;
 
   useEffect(() => {
-    resetGame()
-  }, [])
+    resetGame();
+  }, []);
 
-  const selectRandomCharacter = () => {
+  const selectRandomCharacter = useCallback(() => {
     let dataSource: (
       | Character
       | Animal
@@ -85,7 +139,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       | Person
       | prefecture
     )[];
-  
+
     switch (selectedCategory) {
       case "animals":
         dataSource = animals;
@@ -102,51 +156,140 @@ export function GameProvider({ children }: { children: ReactNode }) {
       case "prefecture":
         dataSource = prefectures;
         break;
-      case "characters":
+      // 他のケースも必要に応じて追加
       default:
         dataSource = characters;
-        break;
     }
-  
+
     const randomIndex = Math.floor(Math.random() * dataSource.length);
-    setSelectedCharacter(dataSource[randomIndex] || null);
-  };
-  
-  
-  
-  
-  
-  
+    setSelectedCharacter(dataSource[randomIndex]);
+  }, [selectedCategory]);
 
-  const addQuestion = (question: string, answer: string, reason?:string) => {
-    setQuestions([...questions, { question, answer, reason }])
+  // 質問を送信する関数
+  const askQuestion = useCallback(
+    async (question: string) => {
+      if (!selectedCharacter || questions.length >= maxQuestions) return;
 
-    // 「答えに到達」の場合は成功として明示的に設定
-    if (answer === "答えに到達") {
-      setIsSuccess(true)
-    }
+      setIsLoading(true);
+      setQuestions((prev) => [...prev, question]);
 
-    // Check if game should end
-    if (questions.length + 1 >= maxQuestions) {
-      setIsSuccess(false)
-      setStage("result")
-    }
-  }
+      try {
+        const response = await fetch("/api/answer-question", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            question,
+            character: selectedCharacter,
+          }),
+        });
 
-  const giveUp = () => {
-    setDidGiveUp(true)    // ギブアップフラグをtrueにする
-    setIsSuccess(false)   // 成功フラグはfalse
-    setStage("result")
-  }
+        if (!response.ok) {
+          throw new Error("Failed to get answer");
+        }
 
-  const resetGame = () => {
-    // selectRandomCharacter()
-    setQuestions([])
-    setStage("intro")
-    setWizardEmotion("neutral")
-    setIsSuccess(true)
-    setDidGiveUp(false) // ギブアップフラグをリセット
-  }
+        const data = await response.json();
+        const answer = data.answer;
+
+        setAnswers((prev) => [...prev, answer]);
+        setCurrentAnswer(answer);
+
+        // 正解の場合
+        if (answer.judgement === "答えに到達") {
+          // 正解時の処理
+          setTimeout(() => {
+            setStage("result");
+            // スコア計算: 残り質問数 * 100 + 残り時間 * 5
+            const calculatedScore =
+              remainingQuestions * 100 + remainingTime * 5;
+            setScore(calculatedScore);
+          }, 2000);
+        }
+      } catch (error) {
+        console.error("Error asking question:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [
+      selectedCharacter,
+      questions.length,
+      maxQuestions,
+      remainingQuestions,
+      remainingTime,
+    ]
+  );
+
+  // ギブアップする関数
+  const giveUp = useCallback(() => {
+    setDidGiveUp(true); // ギブアップフラグをtrueにする
+    setIsSuccess(false); // 成功フラグはfalse
+    setStage("result");
+    setScore(0); // ギブアップ時はスコア0
+  }, []);
+
+  // ゲームをリセットする関数
+  const resetGame = useCallback(() => {
+    setQuestions([]);
+    setAnswers([]);
+    setCurrentAnswer(null);
+    setRemainingTime(10 * 60);
+    setRemainingGuesses(3);
+    setStage("intro");
+    setDidGiveUp(false); // ギブアップフラグをリセット
+  }, []);
+
+  // addQuestion 関数の実装を修正
+  const addQuestion = useCallback(
+    (question: string, answer: string, reason?: string) => {
+      setQuestions((prev) => [...prev, question]);
+
+      // answer を正しい judgement 型に変換
+      let judgement:
+        | "はい"
+        | "いいえ"
+        | "部分的にはい"
+        | "分からない"
+        | "答えに到達";
+
+      // 入力された answer 文字列に基づいて適切な judgement を設定
+      switch (answer.toLowerCase()) {
+        case "はい":
+        case "yes":
+          judgement = "はい";
+          break;
+        case "いいえ":
+        case "no":
+          judgement = "いいえ";
+          break;
+        case "部分的にはい":
+        case "partially":
+          judgement = "部分的にはい";
+          break;
+        case "答えに到達":
+        case "correct":
+          judgement = "答えに到達";
+          break;
+        default:
+          judgement = "分からない";
+      }
+
+      setAnswers((prev) => [
+        ...prev,
+        {
+          judgement: judgement,
+          "thinking-process": reason || "",
+        },
+      ]);
+    },
+    []
+  );
+
+  // setCharacter 関数を定義（selectedCharacter を更新する）
+  const setCharacter = useCallback((character: any) => {
+    setSelectedCharacter(character); // ここで selectedCharacter を更新
+  }, []);
 
   return (
     <GameContext.Provider
@@ -154,40 +297,42 @@ export function GameProvider({ children }: { children: ReactNode }) {
         stage,
         setStage,
         selectedCharacter,
-        selectedCategory,
-        setCategory,
+        selectRandomCharacter,
         questions,
-        addQuestion,
-        resetGame,
-        wizardEmotion,
-        setWizardEmotion,
+        answers,
+        currentAnswer,
+        askQuestion,
         isLoading,
-        setIsLoading,
+        giveUp,
+        resetGame,
         maxQuestions,
         remainingQuestions,
-
-        selectRandomCharacter, // ここで公開する
-
+        remainingGuesses,
+        remainingTime,
+        score,
+        setScore,
+        selectedCategory,
+        setCategory,
         isSuccess,
-        giveUp,
-        didGiveUp, // 追加公開
-
-        // ★ userとloadingも一緒に提供
+        didGiveUp,
         user,
         loading,
-
+        setCharacter,
+        setIsLoading,
+        wizardEmotion,
+        setWizardEmotion,
+        addQuestion,
       }}
     >
       {children}
     </GameContext.Provider>
-  )
+  );
 }
 
 export function useGame() {
-  const context = useContext(GameContext)
+  const context = useContext(GameContext);
   if (context === undefined) {
-    throw new Error("useGame must be used within a GameProvider")
+    throw new Error("useGame must be used within a GameProvider");
   }
-  return context
+  return context;
 }
-

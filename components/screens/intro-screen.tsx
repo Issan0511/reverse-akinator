@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useGame } from "@/context/game-context";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -7,7 +8,17 @@ import WizardCharacter from "@/components/wizard-character";
 import ThoughtBubble from "@/components/thought-bubble";
 
 export default function IntroScreen() {
-  const { setStage, setWizardEmotion } = useGame();
+  const { setStage } = useGame();
+  const [wizardEmotion, setWizardEmotion] = useState<
+    | "neutral"
+    | "thinking"
+    | "happy"
+    | "excited"
+    | "confused"
+    | "yes"
+    | "no"
+    | "partially"
+  >("neutral");
 
   const handleStart = () => {
     setWizardEmotion("excited");
@@ -44,7 +55,7 @@ export default function IntroScreen() {
         className="mb-8 relative w-full max-w-4xl px-4"
       >
         <div className="flex items-center justify-center space-x-4 md:space-x-12 scale-50 md:scale-75">
-          <WizardCharacter emotion="neutral" />
+          <WizardCharacter emotion={wizardEmotion} />
           <ThoughtBubble />
         </div>
       </motion.div>
@@ -56,8 +67,12 @@ export default function IntroScreen() {
         transition={{ delay: 0.2 }}
         className="text-center mb-8"
       >
-        <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">逆アキネーター</h1>
-        <p className="text-xl text-white/80">魔法使いの考えるキャラクターを当てよう！</p>
+        <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+          逆アキネーター
+        </h1>
+        <p className="text-xl text-white/80">
+          魔法使いの考えるキャラクターを当てよう！
+        </p>
       </motion.div>
 
       {/* ゲームの説明文 */}
