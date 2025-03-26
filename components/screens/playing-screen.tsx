@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input"
 import WizardCharacter from "@/components/wizard-character"
 import QuestionHistory from "@/components/question-history"
 import ProgressBar from "@/components/progress-bar"
+import TopicListModal from "@/components/topic-list-modal"
+import { List } from "lucide-react"
 
 // カテゴリー名の日本語マッピング
 const categoryNameMapping: Record<string, string> = {
@@ -40,6 +42,7 @@ export default function PlayingScreen() {
   const [answer, setAnswer] = useState("初期状態")
   // ★ 1) 残り時間を管理する state
   const [remainingTime, setRemainingTime] = useState(10000) // 10分
+  const [isTopicListOpen, setIsTopicListOpen] = useState(false)
 
   // コンポーネントマウント時にトップにスクロール
   useEffect(() => {
@@ -135,10 +138,19 @@ export default function PlayingScreen() {
       className="flex flex-col min-h-screen pt-4"
     >
       <div className="px-4 pb-2">
-        <div className="flex justify-start items-center mb-2">
+        <div className="flex justify-between items-center mb-2">
           <div className="text-white/80">
             カテゴリー: <span className="font-bold text-white">{categoryNameMapping[selectedCategory] || selectedCategory}</span>
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsTopicListOpen(true)}
+            className="bg-gray-800 hover:bg-gray-700 text-white border-gray-700"
+          >
+            <List className="w-4 h-4 mr-2" />
+            お題一覧
+          </Button>
         </div>
         <ProgressBar />
       </div>
@@ -191,6 +203,12 @@ export default function PlayingScreen() {
           </div>
         </div>
       </div>
+
+      <TopicListModal
+        isOpen={isTopicListOpen}
+        onClose={() => setIsTopicListOpen(false)}
+        category={selectedCategory}
+      />
     </motion.div>
   )
 }
