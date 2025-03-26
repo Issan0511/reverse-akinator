@@ -109,7 +109,7 @@ export default function CategoryScreen() {
             onClick={() => handleCategorySelect("scienceWords")}
             className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white px-8 py-6 rounded-full text-lg font-medium shadow-lg hover:shadow-xl transition-all"
           >
-            理科の用語　(超上級)
+            理系用語　(超上級)
           </Button>
         </motion.div>
       </div>
