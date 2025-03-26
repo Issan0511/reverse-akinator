@@ -195,7 +195,7 @@ export default function PlayingScreen() {
             className="bg-gray-800 hover:bg-gray-700 text-white border-gray-700"
           >
             <List className="w-4 h-4 mr-2" />
-            お題一覧
+            ヒント（お題一覧）
           </Button>
         </div>
         <ProgressBar />
