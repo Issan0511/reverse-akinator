@@ -245,7 +245,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
   };
 
 
-  const handleCategorySelect = async (category: Category) => {
+  const handleCategorySelect = (category: Category) => {
     setCategory(category);
 
     if (category === "gekiMuzu") {
@@ -275,7 +275,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
         remainingQuestions,
 
         selectRandomCharacter, // ここで公開する
-
         isSuccess,
         giveUp,
         didGiveUp, // 追加公開
@@ -288,7 +287,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
         decrementAnswerAttempts,
         usedHint,
         setUsedHint,
-
       }}
     >
       {children}

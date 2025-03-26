@@ -32,7 +32,7 @@ export default function CategoryScreen() {
     if (selectedCategory && selectedCategory !== "gekiMuzu") {
       selectRandomCharacter();
     }
-  }, [selectedCategory, selectRandomCharacter]);
+  }, [selectedCategory]);
 
   // 激ムズモードのプレイ状況をチェック
   useEffect(() => {
