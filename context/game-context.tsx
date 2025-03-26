@@ -14,7 +14,7 @@ import type { Person } from "@/types/character"
 import { scienceWords } from "@/data/scienceWords"
 import type { ScienceWord } from "@/types/character"
 import { prefectures } from "@/data/prefectures"
-import type { Prefecture } from "@/types/character"
+import type { prefecture } from "@/types/character"
 
 // 選択可能なカテゴリーを定義（必要に応じて追加してください）
 export type Category = "characters" | "animals" | "countries"| "programs" | "scienceWords" | "persons" | "prefecture"
@@ -22,7 +22,7 @@ export type Category = "characters" | "animals" | "countries"| "programs" | "sci
 type GameStage = "intro" | "playing" | "result"| "category"| "rank"
 
 // selectedCharacter をユニオン型にする
-type SelectedCharacter = Character | Animal | Country | Prefecture | null
+type SelectedCharacter = Character | Animal | Country | prefecture | null
 
 interface GameContextType {
   stage: GameStage
@@ -83,7 +83,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       | Country
       | ScienceWord
       | Person
-      | Prefecture
+      | prefecture
     )[];
   
     switch (selectedCategory) {
