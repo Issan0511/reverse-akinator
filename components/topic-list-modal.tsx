@@ -7,6 +7,7 @@ import { animals } from "@/data/animals"
 import { countries } from "@/data/countries"
 import { persons } from "@/data/persons"
 import { scienceWords } from "@/data/scienceWords"
+import { prefectures } from "@/data/prefectures"
 import type { Category } from "@/context/game-context"
 import { Button } from "@/components/ui/button"
 import { Eraser } from "lucide-react"
@@ -31,6 +32,8 @@ export default function TopicListModal({ isOpen, onClose, category }: TopicListM
         return scienceWords.map(item => item.name)
       case "persons":
         return persons.map(item => item.name)
+      case "prefecture":
+        return prefectures.map(item => item.name)
       case "characters":
       default:
         return characters.map(item => item.name)
@@ -42,7 +45,8 @@ export default function TopicListModal({ isOpen, onClose, category }: TopicListM
     "animals": "動物",
     "countries": "国",
     "persons": "人物",
-    "scienceWords": "理科の用語"
+    "scienceWords": "理科の用語",
+    "prefecture": "都道府県"
   }
 
   const topicList = getTopicList()
