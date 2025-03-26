@@ -190,7 +190,7 @@ export default function ResultScreen() {
       <motion.div 
         initial={{ y: 20, opacity: 0 }} 
         animate={{ y: 0, opacity: 1 }} 
-        transition={{ delay: 1.4 }} 
+        transition={{ delay: 1 }}
         className="mb-8"
       >
         <Link href={tweetUrl} target="_blank" rel="noopener noreferrer">
