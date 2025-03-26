@@ -23,6 +23,8 @@
 
 body {
   font-family: Arial, Helvetica, sans-serif;
+  padding-top: env(safe-area-inset-top, 0);
+  overflow-x: hidden;
 }
 
 @layer utilities {
@@ -207,4 +209,11 @@ body {
   background: linear-gradient(135deg, #3b82f6, #2563eb);
   color: white;
   box-shadow: 0 2px 5px rgba(59, 130, 246, 0.4);
+}
+
+/* モバイルデバイス向けの調整 */
+@media (max-width: 768px) {
+  .min-h-screen {
+    min-height: calc(100vh - env(safe-area-inset-top, 0));
+  }
 }
