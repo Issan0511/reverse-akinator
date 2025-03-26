@@ -76,40 +76,40 @@ export default function CategoryScreen() {
           className="w-full md:w-2/3 max-w-md flex flex-col space-y-4 mt-8 md:mt-0"
         >
           <Button
-            onClick={() => handleCategorySelect("characters")}
-            className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white px-8 py-6 rounded-full text-lg font-medium shadow-lg hover:shadow-xl transition-all"
+            onClick={() => handleCategorySelect("prefecture")}
+            className="bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-white px-8 py-6 rounded-full text-lg font-medium shadow-lg hover:shadow-xl transition-all"
           >
-            キャラクター
+            都道府県　(初級)
           </Button>
           <Button
             onClick={() => handleCategorySelect("animals")}
             className="bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-600 hover:to-orange-700 text-white px-8 py-6 rounded-full text-lg font-medium shadow-lg hover:shadow-xl transition-all"
           >
-            動物
+            動物　(初級)
+          </Button>
+          <Button
+            onClick={() => handleCategorySelect("characters")}
+            className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white px-8 py-6 rounded-full text-lg font-medium shadow-lg hover:shadow-xl transition-all"
+          >
+            キャラクター　(初中級)
           </Button>
           <Button
             onClick={() => handleCategorySelect("countries")}
             className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white px-8 py-6 rounded-full text-lg font-medium shadow-lg hover:shadow-xl transition-all"
           >
-            国
+            国　(中級)
           </Button>
           <Button
             onClick={() => handleCategorySelect("persons")}
             className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white px-8 py-6 rounded-full text-lg font-medium shadow-lg hover:shadow-xl transition-all"
           >
-            人物
+            人物　(上級)
           </Button>
           <Button
             onClick={() => handleCategorySelect("scienceWords")}
             className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white px-8 py-6 rounded-full text-lg font-medium shadow-lg hover:shadow-xl transition-all"
           >
-            理科の用語
-          </Button>
-          <Button
-            onClick={() => handleCategorySelect("prefecture")}
-            className="bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-white px-8 py-6 rounded-full text-lg font-medium shadow-lg hover:shadow-xl transition-all"
-          >
-            都道府県
+            理科の用語　(超上級)
           </Button>
         </motion.div>
       </div>
