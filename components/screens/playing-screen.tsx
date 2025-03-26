@@ -49,7 +49,7 @@ export default function PlayingScreen() {
 
   const [question, setQuestion] = useState("")
   const [answer, setAnswer] = useState("初期状態")
-  const [remainingTime, setRemainingTime] = useState(10000)
+  const [remainingTime, setRemainingTime] = useState(300)
   const [isTopicListOpen, setIsTopicListOpen] = useState(false)
 
   // コンポーネントマウント時にトップにスクロール
