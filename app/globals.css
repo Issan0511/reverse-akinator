@@ -217,3 +217,17 @@ body {
     min-height: calc(100vh - env(safe-area-inset-top, 0));
   }
 }
+
+/* すべての主要コンテナに適用されるスタイル */
+.game-container {
+  padding-top: 2rem;
+  min-height: calc(100vh - 2rem);
+}
+
+/* モバイルデバイス向けの調整 */
+@media (max-width: 768px) {
+  .game-container {
+    padding-top: 1.5rem;
+    min-height: calc(100vh - 1.5rem);
+  }
+}

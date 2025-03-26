@@ -21,21 +21,23 @@ export default function GameScreen() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-700/90 via-indigo-700/90 to-blue-700/90 pt-12">
+    <div className="min-h-screen bg-gradient-to-br from-purple-700/90 via-indigo-700/90 to-blue-700/90">
       {/* ユーザーメニュー - playing画面以外で表示 */}
       {stage !== "playing" && (
-        <div className="fixed top-4 right-4 z-50">
+        <div className="fixed top-6 right-6 z-50">
           <UserMenu />
         </div>
       )}
 
-      <AnimatePresence mode="wait">
-        {stage === "intro" && <IntroScreen key="intro" />}
-        {stage === "playing" && <PlayingScreen key="playing" />}
-        {stage === "result" && <ResultScreen key="result" />}
-        {stage === "category" && <CategoryScreen key="category" />}
-        {stage === "rank" && <RankScreen key="rank" />}
-      </AnimatePresence>
+      <div className="game-container">
+        <AnimatePresence mode="wait">
+          {stage === "intro" && <IntroScreen key="intro" />}
+          {stage === "playing" && <PlayingScreen key="playing" />}
+          {stage === "result" && <ResultScreen key="result" />}
+          {stage === "category" && <CategoryScreen key="category" />}
+          {stage === "rank" && <RankScreen key="rank" />}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

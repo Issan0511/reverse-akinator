@@ -59,7 +59,7 @@ export default function RankScreen() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="min-h-screen flex flex-col items-center p-6 pt-8"
+      className="flex flex-col items-center p-6"
     >
       <motion.div
         initial={{ y: -20, opacity: 0 }}
