@@ -1,3 +1,4 @@
+
 "use client"
 
 import type React from "react"
@@ -11,25 +12,21 @@ import QuestionHistory from "@/components/question-history"
 import ProgressBar from "@/components/progress-bar"
 import TopicListModal from "@/components/topic-list-modal"
 import { List } from "lucide-react"
-import { characters } from "@/data/characters"
-import { animals } from "@/data/animals"
-import { countries } from "@/data/countries"
-import { persons } from "@/data/persons"
-import { scienceWords } from "@/data/scienceWords"
-import type { Character } from "@/types/character"
+import { set } from "date-fns"
+
 
 // カテゴリー名の日本語マッピング
 const categoryNameMapping: Record<string, string> = {
-  "characters": "キャラクター",
-  "animals": "動物",
-  "foods": "食べ物",
-  "places": "場所",
-  "objects": "物",
-  "countries": "国",
-  "persons": "人物",
-  "scienceWords": "理系用語",
-  "prefecture": "都道府県"
-}
+  characters: "キャラクター",
+  animals: "動物",
+  foods: "食べ物",
+  places: "場所",
+  objects: "物",
+  countries: "国",
+  persons: "人物",
+  scienceWords: "理系用語",
+  prefecture: "都道府県",
+};
 
 export default function PlayingScreen() {
   const {
@@ -43,30 +40,30 @@ export default function PlayingScreen() {
     setStage,
     giveUp,
     selectedCategory,
-    remainingAnswerAttempts,
-    decrementAnswerAttempts,
-  } = useGame()
+  } = useGame();
 
-  const [question, setQuestion] = useState("")
-  const [answer, setAnswer] = useState("初期状態")
-  const [remainingTime, setRemainingTime] = useState(selectedCategory === "scienceWords" ? 420 : 300)
-  const [isTopicListOpen, setIsTopicListOpen] = useState(false)
+  const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState("初期状態");
+  // ★ 1) 残り時間を管理する state
+  const [remainingTime, setRemainingTime] = useState(10000); // 10分
+  const [isTopicListOpen, setIsTopicListOpen] = useState(false);
 
   // コンポーネントマウント時にトップにスクロール
   useEffect(() => {
     window.scrollTo(0, 0);
+    setWizardEmotion("neutral")
   }, []);
 
   useEffect(() => {
     if (isLoading) return;
-  
+
     const timerId = setInterval(() => {
       setRemainingTime((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);
-  
+
     return () => clearInterval(timerId);
   }, [isLoading]);
-  
+
   // remainingTime の更新を監視し、0 になったときに giveUp() を呼ぶ
   useEffect(() => {
     if (remainingTime === 0) {
@@ -75,43 +72,12 @@ export default function PlayingScreen() {
   }, [remainingTime, giveUp]);
 
   const handleSubmitQuestion = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (!question.trim() || isLoading) return
+    if (!question.trim() || isLoading) return;
 
-    // 現在のカテゴリーのお題リストを取得
-    let topicList: string[] = [];
-    switch (selectedCategory) {
-      case "animals":
-        topicList = animals.map((item: Character) => item.name);
-        break;
-      case "countries":
-        topicList = countries.map((item: Character) => item.name);
-        break;
-      case "scienceWords":
-        topicList = scienceWords.map((item: Character) => item.name);
-        break;
-      case "persons":
-        topicList = persons.map((item: Character) => item.name);
-        break;
-      case "characters":
-      default:
-        topicList = characters.map((item: Character) => item.name);
-        break;
-    }
-
-    // 質問文に具体的なお題の名前が含まれているかをチェック
-    const isAnswerAttempt = question.includes("ですか") && 
-      topicList.some(name => question.includes(name));
-
-    // 回答権が0の状態で回答を試みた場合は処理を中断
-    if (isAnswerAttempt && remainingAnswerAttempts <= 0) {
-      alert("回答権を使い切りました。")
-      return
-    }
-
-    setIsLoading(true)
-    setWizardEmotion("thinking")
+    setIsLoading(true);
+    setWizardEmotion("thinking");
 
     try {
       const response = await fetch("/api/answer-question", {
@@ -123,70 +89,65 @@ export default function PlayingScreen() {
           question,
           character: selectedCharacter,
         }),
-      })
-      const data = await response.json()
+      });
+      const data = await response.json();
+      // ここで data.answer は次のような形式を想定：
+      // { "thinking-process": "～", "judgement": "いいえ" }
       const { judgement, "thinking-process": thinkingProcess } = data.answer;
-      const newAnswer = judgement
-      const reason = thinkingProcess
-
-      // 回答権を消費する条件：
-      // 1. 具体的なお題の名前を含む質問をした場合
-      // 2. 「答えに到達」と判定された場合
-      if (isAnswerAttempt || newAnswer === "答えに到達") {
-        decrementAnswerAttempts()
-      }
-
-      setAnswer(newAnswer)
+      const newAnswer = judgement;
+      const reason = thinkingProcess;
+      setAnswer(newAnswer);
+      // 例として、思考過程も履歴に残したい場合は addQuestion を拡張する
       setTimeout(() => {
-        addQuestion(question, newAnswer, reason)
-        setQuestion("")
+        // addQuestion(question, judgement) の代わりに、必要なら思考過程も渡す
+        addQuestion(question, newAnswer, reason);
+        setQuestion("");
 
+        // ウィザードの表情は judgement によって変化
         if (newAnswer === "はい") {
-          setWizardEmotion("happy")
+          setWizardEmotion("happy");
         } else if (newAnswer === "いいえ") {
-          setWizardEmotion("neutral")
+          setWizardEmotion("neutral");
         } else if (newAnswer === "答えに到達") {
-          setWizardEmotion("excited")
+          setWizardEmotion("excited"); // お好みで変更
         } else {
-          setWizardEmotion("confused")
+          setWizardEmotion("confused");
         }
-        setIsLoading(false)
-        
-        // 残りの質問がなくなったか、答えに到達したか、回答権がなくなった場合は結果画面へ
-        if (remainingQuestions <= 1 || newAnswer === "答えに到達" || remainingAnswerAttempts <= 0) {
+        setIsLoading(false);
+
+        // 残りの質問がなくなったら結果画面へ
+        if (remainingQuestions <= 1 || newAnswer === "答えに到達") {
           setTimeout(() => {
-            setStage("result")
-          }, 1000)
+            setStage("result");
+          }, 1000);
         }
-      }, 1500)
+      }, 1500);
     } catch (error) {
-      console.error("Error getting answer:", error)
-      setWizardEmotion("confused")
-      setIsLoading(false)
+      console.error("Error getting answer:", error);
+      setWizardEmotion("confused");
+      setIsLoading(false);
     }
-  }
+  };
 
   // ★ 3) 残り時間の表示用フォーマット
   //    分:秒 の形式にしたい場合は以下のように加工
-  const minutes = Math.floor(remainingTime / 60)
-  const seconds = remainingTime % 60
+  const minutes = Math.floor(remainingTime / 60);
+  const seconds = remainingTime % 60;
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="flex flex-col min-h-screen pt-4"
+      className="flex flex-col min-h-screen pt-6"
     >
       <div className="px-4 pb-2">
         <div className="flex justify-between items-center mb-2">
-          <div className="flex items-center gap-4">
-            <div className="text-white/80">
-              カテゴリー: <span className="font-bold text-white">{categoryNameMapping[selectedCategory] || selectedCategory}</span>
-            </div>
-            <div className="text-white/80">
-              残り回答権: <span className={`font-bold ${remainingAnswerAttempts > 0 ? 'text-white' : 'text-red-500'}`}>{remainingAnswerAttempts}</span>
-            </div>
+          <div className="text-white/80">
+            カテゴリー:{" "}
+            <span className="font-bold text-white">
+              {categoryNameMapping[selectedCategory] || selectedCategory}
+            </span>
           </div>
           <Button
             variant="outline"
@@ -195,7 +156,7 @@ export default function PlayingScreen() {
             className="bg-gray-800 hover:bg-gray-700 text-white border-gray-700"
           >
             <List className="w-4 h-4 mr-2" />
-            お題一覧
+            ヒント（お題一覧）
           </Button>
         </div>
         <ProgressBar />
@@ -230,7 +191,7 @@ export default function PlayingScreen() {
               </Button>
             </div>
           </form>
-          
+
           <div className="text-center mb-4">
             <Button
               onClick={giveUp}
@@ -256,5 +217,5 @@ export default function PlayingScreen() {
         category={selectedCategory}
       />
     </motion.div>
-  )
+  );
 }
