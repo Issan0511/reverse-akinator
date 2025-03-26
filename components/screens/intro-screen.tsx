@@ -56,7 +56,7 @@ export default function IntroScreen() {
         transition={{ delay: 0.2 }}
         className="text-center mb-8"
       >
-        <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">逆ネーター</h1>
+        <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">逆アキネーター</h1>
         <p className="text-xl text-white/80">魔法使いの考えるキャラクターを当てよう！</p>
       </motion.div>
 
