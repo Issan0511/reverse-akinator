@@ -19,7 +19,7 @@ import { gekiMuzu } from "@/data/gekiMuzu";
 import type { GekiMuzu } from "@/types/character";
 import { auth } from "@/firebase/firebaseConfig"
 import { db } from "@/firebase"
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore"
+import { doc, getDoc, setDoc,addDoc,collection, serverTimestamp } from "firebase/firestore"
 
 
 // 選択可能なカテゴリーを定義（必要に応じて追加してください）
