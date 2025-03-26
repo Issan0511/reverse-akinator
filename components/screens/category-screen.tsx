@@ -17,7 +17,7 @@ export default function CategoryScreen() {
 
   // selectedCategory の変更を監視し、更新されたらキャラクター選択を実行
   useEffect(() => {
-    if (selectedCategory) {
+    if (selectedCategory&&selectedCategory != "gekiMuzu") {
       selectRandomCharacter()
     }
     // 依存配列は selectedCategory のみ
@@ -28,7 +28,7 @@ export default function CategoryScreen() {
     const checkGekiMuzuStatus = async () => {
       if (!user) return
 
-      const docRef = doc(db, "gekiMuzuStatus", user.uid)
+      const docRef = doc(db, "dailyChallenges", user.uid)
       const docSnap = await getDoc(docRef)
 
       if (docSnap.exists()) {
@@ -55,7 +55,7 @@ export default function CategoryScreen() {
     if (category === "gekiMuzu") {
       if (!user) return
 
-      const docRef = doc(db, "gekiMuzuStatus", user.uid)
+      const docRef = doc(db, "dailyChallenges", user.uid)
       await setDoc(docRef, { lastPlayed: serverTimestamp() }, { merge: true })
     }
 
@@ -143,7 +143,7 @@ export default function CategoryScreen() {
             className="bg-gradient-to-r from-black to-gray-800 hover:from-gray-900 hover:to-gray-700 text-white px-8 py-6 rounded-full text-lg font-medium shadow-lg hover:shadow-xl transition-all"
             disabled={isGekiMuzuPlayed}
           >
-            激ムズモード
+            デイリーモード(激ムズ)
           </Button>
         </motion.div>
       </div>

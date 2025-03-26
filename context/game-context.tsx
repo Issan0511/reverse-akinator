@@ -14,7 +14,9 @@ import type { Person } from "@/types/character"
 import { scienceWords } from "@/data/scienceWords"
 import type { ScienceWord } from "@/types/character"
 import { prefectures } from "@/data/prefectures"
-import type { prefecture } from "@/types/character"
+import type { Prefecture } from "@/types/character"
+import { gekiMuzu } from "@/data/gekiMuzu";
+import type { GekiMuzu } from "@/types/character";
 import { db } from "@/firebase"
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore"
 
@@ -24,7 +26,7 @@ export type Category = "characters" | "animals" | "countries"| "programs" | "sci
 type GameStage = "intro" | "playing" | "result"| "category"| "rank"
 
 // selectedCharacter をユニオン型にする
-type SelectedCharacter = Character | Animal | Country | prefecture | null
+type SelectedCharacter = Character | Animal | Country | Prefecture | null
 
 interface GameContextType {
   stage: GameStage
@@ -89,7 +91,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       | Country
       | ScienceWord
       | Person
-      | prefecture
+      | Prefecture
     )[];
   
     switch (selectedCategory) {
@@ -154,34 +156,46 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setRemainingAnswerAttempts(3) // 回答権をリセット
   }
 
-  // 激ムズモードの固定トピックを取得する関数
-  const getFixedGekiMuzuTopic = async () => {
-    if (!user) return null;
+  
+  // const getFixedGekiMuzuTopic = async () => {
+  //   if (!user) return null;
 
-    const docRef = doc(db, "gekiMuzuTopics", user.uid);
-    const docSnap = await getDoc(docRef);
+  //   const docRef = doc(db, "gekiMuzuTopics", user.uid);
+  //   const docSnap = await getDoc(docRef);
 
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      const today = new Date().toDateString();
+  //   if (docSnap.exists()) {
+  //     const data = docSnap.data();
+  //     const today = new Date().toDateString();
 
-      if (data.date === today) {
-        return data.topic;
-      }
-    }
+  //     if (data.date === today) {
+  //       return data.topic;
+  //     }
+  //   }
 
-    // トピックが存在しない場合、新しいトピックを設定
-    const newTopic = characters[Math.floor(Math.random() * characters.length)];
-    await setDoc(docRef, { topic: newTopic, date: new Date().toDateString() });
+  //   // トピックが存在しない場合、新しいトピックを設定
+  //   const newTopic = characters[Math.floor(Math.random() * characters.length)];
+  //   await setDoc(docRef, { topic: newTopic, date: new Date().toDateString() });
 
-    return newTopic;
+  //   return newTopic;
+  // };
+  // 激ムズモードの固定トピックを日付から計算する関数
+  const caluculateFixedGekiMuzuTopic = (): GekiMuzu => {
+    const today = new Date();
+    const day = today.getDate();
+    const month = today.getMonth() + 1;
+    const year = today.getFullYear();
+
+    const total = (day + month*100 + year*10000)*day;
+    const index = total % gekiMuzu.length;
+    return gekiMuzu[index];
   };
+
 
   const handleCategorySelect = async (category: Category) => {
     setCategory(category);
 
     if (category === "gekiMuzu") {
-      const fixedTopic = await getFixedGekiMuzuTopic();
+      const fixedTopic = caluculateFixedGekiMuzuTopic();
       setSelectedCharacter(fixedTopic);
     } else {
       selectRandomCharacter();
