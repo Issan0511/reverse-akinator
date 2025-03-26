@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { characters } from "@/data/characters"
 import { animals } from "@/data/animals"
@@ -7,6 +8,8 @@ import { countries } from "@/data/countries"
 import { persons } from "@/data/persons"
 import { scienceWords } from "@/data/scienceWords"
 import type { Category } from "@/context/game-context"
+import { Button } from "@/components/ui/button"
+import { Eraser } from "lucide-react"
 
 interface TopicListModalProps {
   isOpen: boolean
@@ -15,6 +18,9 @@ interface TopicListModalProps {
 }
 
 export default function TopicListModal({ isOpen, onClose, category }: TopicListModalProps) {
+  // 選択された項目を管理するstate
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
+
   const getTopicList = () => {
     switch (category) {
       case "animals":
@@ -41,20 +47,50 @@ export default function TopicListModal({ isOpen, onClose, category }: TopicListM
 
   const topicList = getTopicList()
 
+  // 項目をクリックしたときの処理
+  const handleItemClick = (name: string) => {
+    const newSelectedItems = new Set(selectedItems)
+    if (selectedItems.has(name)) {
+      newSelectedItems.delete(name)
+    } else {
+      newSelectedItems.add(name)
+    }
+    setSelectedItems(newSelectedItems)
+  }
+
+  // 選択をリセットする処理
+  const handleReset = () => {
+    setSelectedItems(new Set())
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="bg-gray-900 text-white border-gray-800">
-        <DialogHeader>
+        <DialogHeader className="flex flex-row justify-between items-center">
           <DialogTitle className="text-xl font-bold">
             {categoryNameMapping[category] || category}のお題一覧
           </DialogTitle>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleReset}
+            className="bg-gray-800 hover:bg-gray-700 text-white border-gray-700"
+          >
+            <Eraser className="w-4 h-4 mr-2" />
+            選択をリセット
+          </Button>
         </DialogHeader>
         <div className="mt-4 max-h-[60vh] overflow-y-auto">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {topicList.map((name, index) => (
               <div
                 key={index}
-                className="p-2 bg-gray-800 rounded-lg text-center hover:bg-gray-700 transition-colors"
+                onClick={() => handleItemClick(name)}
+                className={`p-2 rounded-lg text-center cursor-pointer transition-all ${
+                  selectedItems.has(name)
+                    ? "bg-purple-900/50 line-through text-white/50"
+                    : "bg-gray-800 hover:bg-gray-700 text-white"
+                }`}
               >
                 {name}
               </div>
