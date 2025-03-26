@@ -49,7 +49,9 @@ interface GameContextType {
   // ここで user, loading を追加
   user: any;
   loading: boolean;
-  
+  // 回答権の状態を追加
+  remainingAnswerAttempts: number
+  decrementAnswerAttempts: () => void
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined)
@@ -69,6 +71,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const [isSuccess, setIsSuccess] = useState(true)
 
   const [didGiveUp, setDidGiveUp] = useState(false)
+  // 回答権の状態を追加（初期値3）
+  const [remainingAnswerAttempts, setRemainingAnswerAttempts] = useState(3)
 
   const maxQuestions = 20
   const remainingQuestions = maxQuestions - questions.length
@@ -136,6 +140,11 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setStage("result")
   }
 
+  // 回答権を減らす関数
+  const decrementAnswerAttempts = () => {
+    setRemainingAnswerAttempts((prev) => Math.max(0, prev - 1))
+  }
+
   const resetGame = () => {
     // selectRandomCharacter()
     setQuestions([])
@@ -143,6 +152,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setWizardEmotion("neutral")
     setIsSuccess(true)
     setDidGiveUp(false) // ギブアップフラグをリセット
+    setRemainingAnswerAttempts(3) // 回答権をリセット
   }
 
   return (
@@ -172,6 +182,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
         // ★ userとloadingも一緒に提供
         user,
         loading,
+        // 回答権の状態を追加
+        remainingAnswerAttempts,
+        decrementAnswerAttempts,
 
       }}
     >

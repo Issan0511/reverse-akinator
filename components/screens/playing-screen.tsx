@@ -11,6 +11,12 @@ import QuestionHistory from "@/components/question-history"
 import ProgressBar from "@/components/progress-bar"
 import TopicListModal from "@/components/topic-list-modal"
 import { List } from "lucide-react"
+import { characters } from "@/data/characters"
+import { animals } from "@/data/animals"
+import { countries } from "@/data/countries"
+import { persons } from "@/data/persons"
+import { scienceWords } from "@/data/scienceWords"
+import type { Character } from "@/types/character"
 
 // カテゴリー名の日本語マッピング
 const categoryNameMapping: Record<string, string> = {
@@ -36,12 +42,13 @@ export default function PlayingScreen() {
     setStage,
     giveUp,
     selectedCategory,
+    remainingAnswerAttempts,
+    decrementAnswerAttempts,
   } = useGame()
 
   const [question, setQuestion] = useState("")
   const [answer, setAnswer] = useState("初期状態")
-  // ★ 1) 残り時間を管理する state
-  const [remainingTime, setRemainingTime] = useState(10000) // 10分
+  const [remainingTime, setRemainingTime] = useState(10000)
   const [isTopicListOpen, setIsTopicListOpen] = useState(false)
 
   // コンポーネントマウント時にトップにスクロール
@@ -71,6 +78,37 @@ export default function PlayingScreen() {
 
     if (!question.trim() || isLoading) return
 
+    // 現在のカテゴリーのお題リストを取得
+    let topicList: string[] = [];
+    switch (selectedCategory) {
+      case "animals":
+        topicList = animals.map((item: Character) => item.name);
+        break;
+      case "countries":
+        topicList = countries.map((item: Character) => item.name);
+        break;
+      case "scienceWords":
+        topicList = scienceWords.map((item: Character) => item.name);
+        break;
+      case "persons":
+        topicList = persons.map((item: Character) => item.name);
+        break;
+      case "characters":
+      default:
+        topicList = characters.map((item: Character) => item.name);
+        break;
+    }
+
+    // 質問文に具体的なお題の名前が含まれているかをチェック
+    const isAnswerAttempt = question.includes("ですか") && 
+      topicList.some(name => question.includes(name));
+
+    // 回答権が0の状態で回答を試みた場合は処理を中断
+    if (isAnswerAttempt && remainingAnswerAttempts <= 0) {
+      alert("回答権を使い切りました。")
+      return
+    }
+
     setIsLoading(true)
     setWizardEmotion("thinking")
 
@@ -86,33 +124,35 @@ export default function PlayingScreen() {
         }),
       })
       const data = await response.json()
-      // ここで data.answer は次のような形式を想定：
-      // { "thinking-process": "～", "judgement": "いいえ" }
       const { judgement, "thinking-process": thinkingProcess } = data.answer;
       const newAnswer = judgement
       const reason = thinkingProcess
+
+      // 回答権を消費する条件：
+      // 1. 具体的なお題の名前を含む質問をした場合
+      // 2. 「答えに到達」と判定された場合
+      if (isAnswerAttempt || newAnswer === "答えに到達") {
+        decrementAnswerAttempts()
+      }
+
       setAnswer(newAnswer)
-      // 例として、思考過程も履歴に残したい場合は addQuestion を拡張する
       setTimeout(() => {
-        // addQuestion(question, judgement) の代わりに、必要なら思考過程も渡す
-        addQuestion(question, 
-          newAnswer  ,reason      )
+        addQuestion(question, newAnswer, reason)
         setQuestion("")
 
-        // ウィザードの表情は judgement によって変化
         if (newAnswer === "はい") {
           setWizardEmotion("happy")
         } else if (newAnswer === "いいえ") {
           setWizardEmotion("neutral")
         } else if (newAnswer === "答えに到達") {
-          setWizardEmotion("excited") // お好みで変更
+          setWizardEmotion("excited")
         } else {
           setWizardEmotion("confused")
         }
         setIsLoading(false)
         
-        // 残りの質問がなくなったら結果画面へ
-        if (remainingQuestions <= 1||newAnswer === "答えに到達") {
+        // 残りの質問がなくなったか、答えに到達したか、回答権がなくなった場合は結果画面へ
+        if (remainingQuestions <= 1 || newAnswer === "答えに到達" || remainingAnswerAttempts <= 0) {
           setTimeout(() => {
             setStage("result")
           }, 1000)
@@ -139,8 +179,13 @@ export default function PlayingScreen() {
     >
       <div className="px-4 pb-2">
         <div className="flex justify-between items-center mb-2">
-          <div className="text-white/80">
-            カテゴリー: <span className="font-bold text-white">{categoryNameMapping[selectedCategory] || selectedCategory}</span>
+          <div className="flex items-center gap-4">
+            <div className="text-white/80">
+              カテゴリー: <span className="font-bold text-white">{categoryNameMapping[selectedCategory] || selectedCategory}</span>
+            </div>
+            <div className="text-white/80">
+              残り回答権: <span className={`font-bold ${remainingAnswerAttempts > 0 ? 'text-white' : 'text-red-500'}`}>{remainingAnswerAttempts}</span>
+            </div>
           </div>
           <Button
             variant="outline"
