@@ -19,7 +19,8 @@ const categoryNameMapping: Record<string, string> = {
   "objects": "物",
   "countries": "国",
   "persons": "人物",
-  "scienceWords": "理科の用語"
+  "scienceWords": "理科の用語",
+  "prefecture": "都道府県"
 }
 
 export default function PlayingScreen() {
