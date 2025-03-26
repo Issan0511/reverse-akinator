@@ -1,16 +1,19 @@
-"use client";
 
-import type React from "react";
-import { useState, useEffect } from "react";
-import { useGame } from "@/context/game-context";
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import WizardCharacter from "@/components/wizard-character";
-import QuestionHistory from "@/components/question-history";
-import ProgressBar from "@/components/progress-bar";
-import TopicListModal from "@/components/topic-list-modal";
-import { List } from "lucide-react";
+"use client"
+
+import type React from "react"
+import { useState, useEffect } from "react"
+import { useGame } from "@/context/game-context"
+import { motion } from "framer-motion"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import WizardCharacter from "@/components/wizard-character"
+import QuestionHistory from "@/components/question-history"
+import ProgressBar from "@/components/progress-bar"
+import TopicListModal from "@/components/topic-list-modal"
+import { List } from "lucide-react"
+import { set } from "date-fns"
+
 
 // カテゴリー名の日本語マッピング
 const categoryNameMapping: Record<string, string> = {
@@ -48,6 +51,7 @@ export default function PlayingScreen() {
   // コンポーネントマウント時にトップにスクロール
   useEffect(() => {
     window.scrollTo(0, 0);
+    setWizardEmotion("neutral")
   }, []);
 
   useEffect(() => {
