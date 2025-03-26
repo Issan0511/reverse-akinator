@@ -14,18 +14,21 @@ import type { Person } from "@/types/character"
 import { scienceWords } from "@/data/scienceWords"
 import type { ScienceWord } from "@/types/character"
 import { prefectures } from "@/data/prefectures"
-import type { prefecture } from "@/types/character"
-import { collection, addDoc, serverTimestamp } from "firebase/firestore"
+import type { Prefecture } from "@/types/character"
+import { gekiMuzu } from "@/data/gekiMuzu";
+import type { GekiMuzu } from "@/types/character";
 import { auth } from "@/firebase/firebaseConfig"
-import { db } from "@/firebase/firebaseConfig"
+import { db } from "@/firebase"
+import { doc, getDoc, setDoc,addDoc,collection, serverTimestamp } from "firebase/firestore"
+
 
 // 選択可能なカテゴリーを定義（必要に応じて追加してください）
-export type Category = "characters" | "animals" | "countries"| "programs" | "scienceWords" | "persons" | "prefecture"
+export type Category = "characters" | "animals" | "countries"| "programs" | "scienceWords" | "persons" | "prefecture" | "gekiMuzu"
 
 type GameStage = "intro" | "playing" | "result"| "category"| "rank"
 
 // selectedCharacter をユニオン型にする
-type SelectedCharacter = Character | Animal | Country | prefecture | null
+type SelectedCharacter = Character | Animal | Country | Prefecture | null
 
 interface GameContextType {
   stage: GameStage
@@ -93,7 +96,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       | Country
       | ScienceWord
       | Person
-      | prefecture
+      | Prefecture
     )[];
   
     switch (selectedCategory) {
@@ -122,6 +125,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setSelectedCharacter(dataSource[randomIndex] || null);
   };
   
+
   
   
   
@@ -129,6 +133,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
   
 
   const addQuestion = async (question: string, answer: string, reason?: string) => {
+
     setQuestions([...questions, { question, answer, reason }])
 
     // 「答えに到達」の場合は成功として明示的に設定
@@ -205,6 +210,52 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setUsedHint(false) // ゲームリセット時にヒント使用状態もリセット
   }
 
+  
+  // const getFixedGekiMuzuTopic = async () => {
+  //   if (!user) return null;
+
+  //   const docRef = doc(db, "gekiMuzuTopics", user.uid);
+  //   const docSnap = await getDoc(docRef);
+
+  //   if (docSnap.exists()) {
+  //     const data = docSnap.data();
+  //     const today = new Date().toDateString();
+
+  //     if (data.date === today) {
+  //       return data.topic;
+  //     }
+  //   }
+
+  //   // トピックが存在しない場合、新しいトピックを設定
+  //   const newTopic = characters[Math.floor(Math.random() * characters.length)];
+  //   await setDoc(docRef, { topic: newTopic, date: new Date().toDateString() });
+
+  //   return newTopic;
+  // };
+  // 激ムズモードの固定トピックを日付から計算する関数
+  const caluculateFixedGekiMuzuTopic = (): GekiMuzu => {
+    const today = new Date();
+    const day = today.getDate();
+    const month = today.getMonth() + 1;
+    const year = today.getFullYear();
+
+    const total = (day + month*100 + year*10000)*day;
+    const index = total % gekiMuzu.length;
+    return gekiMuzu[index];
+  };
+
+
+  const handleCategorySelect = (category: Category) => {
+    setCategory(category);
+
+    if (category === "gekiMuzu") {
+      const fixedTopic = caluculateFixedGekiMuzuTopic();
+      setSelectedCharacter(fixedTopic);
+    } else {
+      selectRandomCharacter();
+    }
+  };
+
   return (
     <GameContext.Provider
       value={{
@@ -212,7 +263,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
         setStage,
         selectedCharacter,
         selectedCategory,
-        setCategory,
+        setCategory: handleCategorySelect,
         questions,
         addQuestion,
         resetGame,
@@ -224,7 +275,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
         remainingQuestions,
 
         selectRandomCharacter, // ここで公開する
-
         isSuccess,
         giveUp,
         didGiveUp, // 追加公開
@@ -237,7 +287,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
         decrementAnswerAttempts,
         usedHint,
         setUsedHint,
-
       }}
     >
       {children}

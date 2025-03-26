@@ -46,7 +46,15 @@ export interface Person {
   description: string
   tips: string
 }
-export interface prefecture {
+export interface Prefecture {
+  id: number
+  name: string
+  emoji: string
+  description: string
+  tips: string
+}
+
+export interface GekiMuzu {
   id: number
   name: string
   emoji: string
@@ -56,4 +64,4 @@ export interface prefecture {
 
 
 
-export type Category = "characters" | "animals" | "countries" | "programs" | "scienceWords" | "persons" | "prefecture"
+export type Category = "characters" | "animals" | "countries" | "programs" | "scienceWords" | "persons" | "prefecture"| "gekiMuzu" 
