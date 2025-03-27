@@ -222,11 +222,15 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setQuestions([])
     setStage("intro")
     setWizardEmotion("neutral")
-    setIsSuccess(true)
+    setIsSuccess(false)
     setDidGiveUp(false) // ギブアップフラグをリセット
     setRemainingAnswerAttempts(Infinity) // 回答権をリセット
     setUsedHint(false) // ゲームリセット時にヒント使用状態もリセット
     setCustomCategoryName("");  // カスタムカテゴリー名もリセット
+  }
+
+  const reloadPlaying = () => {
+    
   }
 
   
