@@ -43,7 +43,7 @@ export default function RankScreen() {
     const q = query(
       collection(db, "leaderboard"),
       where("category", "==", selectedCategory),
-      where("didGiveUp", "==", false),
+      where("questionsCount", "<", 100),
       orderBy("questionsCount", "asc"),
       limit(10)
     );

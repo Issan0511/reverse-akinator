@@ -45,7 +45,7 @@ export default function PlayingScreen() {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("初期状態");
   // ★ 1) 残り時間を管理する state
-  const [remainingTime, setRemainingTime] = useState(10000); // 10分
+  const [remainingTime, setRemainingTime] = useState(300); // 10分
   const [isTopicListOpen, setIsTopicListOpen] = useState(false);
 
   // コンポーネントマウント時にトップにスクロール

@@ -192,15 +192,18 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }
 
     // Check if game should end
-    if (questions.length + 1 >= maxQuestions) {
+    if (questions.length + 1 >= maxQuestions || usedHint) {
       setIsSuccess(false)
       setStage("result")
     }
   }
 
   const giveUp = () => {
-    setDidGiveUp(true)    // ギブアップフラグをtrueにする
+    setDidGiveUp(true)    // ギ���アップフラグをtrueにする
     setIsSuccess(false)   // 成功フラグはfalse
+    if (usedHint) {
+      setQuestions([...questions, { question: "ギブアップ", answer: "999" }])
+    }
     setStage("result")
   }
 
