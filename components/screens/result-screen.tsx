@@ -339,6 +339,7 @@ export default function ResultScreen() {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
+          {selectedCategory !== "customTopic" && (
           <Button
             onClick={() => setStage("rank")}
             variant="outline"
@@ -347,6 +348,7 @@ export default function ResultScreen() {
             <BarChart3 className="h-4 w-4" />
             ランキングをみる
           </Button>
+          )}
         </motion.div>
       </div>
     </motion.div>
