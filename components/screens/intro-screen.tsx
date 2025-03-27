@@ -1,14 +1,84 @@
 "use client";
 
+import { useEffect } from "react";
 import { useGame } from "@/context/game-context";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import WizardCharacter from "@/components/wizard-character";
 import ThoughtBubble from "@/components/thought-bubble";
 import { Sparkles } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 export default function IntroScreen() {
-  const { setStage, setWizardEmotion } = useGame();
+  const { setStage, setWizardEmotion, setCustomTopic } = useGame();
+  const pathname = usePathname();
+
+  // ページ読み込み時にURLパラメータとセッションストレージを確認
+  useEffect(() => {
+    // URLからのカスタムトピック検出（既存処理を残す）
+    const checkCustomTopic = () => {
+      if (!pathname) return;
+      
+      try {
+        const decodedPath = decodeURIComponent(pathname);
+        const match = decodedPath.match(/\/custom\/Category="([^"]+)"selectedCharacter="([^"]+)"/);
+        
+        if (match && match.length === 3) {
+          const category = match[1];
+          const character = match[2];
+          console.log("URLからカスタムトピック検出:", { category, character });
+          
+          // カスタムトピックをセット
+          setCustomTopic(category, character);
+          
+          // 直接プレイ画面に遷移
+          setWizardEmotion("excited");
+          setTimeout(() => {
+            setStage("playing");
+          }, 1000);
+          return true;
+        }
+      } catch (error) {
+        console.error("URLカスタムトピック処理エラー:", error);
+      }
+      return false;
+    };
+    
+    // セッションストレージからのカスタムトピック検出
+    const checkSessionStorage = () => {
+      const hasCustomTopic = sessionStorage.getItem("hasCustomTopic");
+      
+      if (hasCustomTopic === "true") {
+        const category = sessionStorage.getItem("customTopicCategory");
+        const character = sessionStorage.getItem("customTopicCharacter");
+        
+        if (category && character) {
+          console.log("セッションストレージからカスタムトピック検出:", { category, character });
+          
+          // 使用したらセッションストレージから削除
+          sessionStorage.removeItem("hasCustomTopic");
+          sessionStorage.removeItem("customTopicCategory");
+          sessionStorage.removeItem("customTopicCharacter");
+          
+          // カスタムトピックをセット
+          setCustomTopic(category, character);
+          
+          // 直接プレイ画面に遷移
+          setWizardEmotion("excited");
+          setTimeout(() => {
+            setStage("playing");
+          }, 1000);
+          return true;
+        }
+      }
+      return false;
+    };
+    
+    // URLとセッションストレージの両方をチェック
+    if (!checkCustomTopic()) {
+      checkSessionStorage();
+    }
+  }, [pathname, setCustomTopic, setStage]);
 
   const handleStart = () => {
     setWizardEmotion("excited");

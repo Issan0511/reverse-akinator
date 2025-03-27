@@ -198,7 +198,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       setStage("result")
     }
   }
-
+  
   const giveUp = () => {
     setDidGiveUp(true)    // ギブアップフラグをtrueにする
     setIsSuccess(false)   // 成功フラグはfalse
