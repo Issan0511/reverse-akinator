@@ -39,34 +39,27 @@ export default function ResultScreen() {
     user,
     setStage, // ログインしているユーザー情報がある前提
     didGiveUp,
+    usedHint
   } = useGame();
 
   // 成功時にconfettiを発射
   useEffect(() => {
-    if (isSuccess) {
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 },
-      });
-    }
-  }, [isSuccess]);
-
-  useEffect(() => {
     const saveResultToFirestore = async () => {
       try {
         if (!user || !selectedCategory) return;
-
+  
         // ドキュメントIDを「カテゴリ+ユーザーID」で固定（最高記録のみを保存）
         const docRef = doc(
           db,
           "leaderboard",
           `${selectedCategory}-${user.uid}`
         );
-
-        // ギブアップかどうかで分岐
-        if (didGiveUp) {
-          // ギブアップした場合は、既存の記録がない場合のみ保存
+  
+        // ギブアップまたはヒント使用の場合はランキング対象外とする
+        const isDisqualified = didGiveUp || usedHint;
+  
+        if (isDisqualified) {
+          // 除外の場合は、既存の記録がない場合のみ保存（既に記録があればそのまま）
           const docSnap = await getDoc(docRef);
           if (!docSnap.exists()) {
             await setDoc(
@@ -75,22 +68,22 @@ export default function ResultScreen() {
                 category: selectedCategory,
                 userId: user.uid,
                 userName: user.displayName ?? "Anonymous",
-                questionsCount: 999,
-                didGiveUp: true,
+                questionsCount: 999,  // 高い数値を入れてランキングから外す
+                didGiveUp: didGiveUp,      // 既存のフィールドをそのまま利用
                 updatedAt: serverTimestamp(),
               },
               { merge: true }
             );
           }
         } else {
-          // 通常のクリア・失敗時は、既存の記録と比較して良い方のみ保存
+          // 正常なクリア・失敗時は、既存の記録と比較して良い方のみ保存
           const docSnap = await getDoc(docRef);
           const currentRecord = docSnap.exists() ? docSnap.data() : null;
-
+  
           if (
             !currentRecord ||
-            (currentRecord.didGiveUp && !didGiveUp) ||
-            (currentRecord.questionsCount > questions.length && !didGiveUp)
+            (currentRecord.didGiveUp && !isDisqualified) ||
+            (currentRecord.questionsCount > questions.length && !isDisqualified)
           ) {
             await setDoc(
               docRef,
@@ -110,9 +103,10 @@ export default function ResultScreen() {
         console.error("Error saving result to Firestore:", error);
       }
     };
-
+  
     saveResultToFirestore();
-  }, [questions.length, selectedCategory, user, didGiveUp]);
+  }, [questions.length, selectedCategory, user, didGiveUp, usedHint]);
+  
 
   const tweetText = isSuccess
     ? `「逆ネーター」で ${questions.length} 問以内に『${selectedCharacter?.name}』を当てられた！\nあなたもプレイしてみよう👇`
