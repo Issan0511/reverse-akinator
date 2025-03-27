@@ -24,6 +24,7 @@ const categoryNameMapping: Record<string, string> = {
   persons: "人物",
   scienceWords: "理系用語",
   prefecture: "都道府県",
+  custom: "カスタム",
 };
 
 export default function PlayingScreen() {
