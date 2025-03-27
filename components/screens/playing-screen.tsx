@@ -10,7 +10,7 @@ import WizardCharacter from "@/components/wizard-character"
 import QuestionHistory from "@/components/question-history"
 import ProgressBar from "@/components/progress-bar"
 import TopicListModal from "@/components/topic-list-modal"
-import { List } from "lucide-react"
+import { List, Lightbulb } from "lucide-react"
 import { set } from "date-fns"
 
 
@@ -153,15 +153,17 @@ export default function PlayingScreen() {
             variant="outline"
             size="sm"
             onClick={() => {
+              if  (window.confirm("ヒントを使用すると、ランキングに登録されなくなります。よろしいですか？")){
               console.log("ヒントボタンが押されました");
               setUsedHint(true);
               console.log("setUsedHint(true)が呼び出されました");
               setIsTopicListOpen(true);
+              }
             }}
-            className="bg-gray-800 hover:bg-gray-700 text-white border-gray-700"
+            className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white border-white/20"
           >
-            <List className="w-4 h-4 mr-2" />
-            ヒント（お題一覧）
+            <Lightbulb className="w-4 h-4" />
+            ヒントを見る
           </Button>
         </div>
         <ProgressBar />
