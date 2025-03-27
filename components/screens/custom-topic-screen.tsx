@@ -13,7 +13,7 @@ export default function CustomTopicScreen() {
   const handleGenerateLink = () => {
     const Base64topic = Buffer.from(topic).toString('base64');
 
-    const generatedLink = `http://localhost:3000/custom/Category="${category}"selectedCharacter="${Base64topic}"`;
+    const generatedLink = `hhttps://reverse-akinator-eight.vercel.app/custom/Category="${category}"selectedCharacter="${Base64topic}"`;
     setLink(generatedLink);
   };
 
