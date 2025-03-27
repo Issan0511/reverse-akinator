@@ -6,7 +6,16 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import WizardCharacter from "@/components/wizard-character";
 import type { Category } from "@/types/character";
-import { Sparkles, MapPin, Cat, Tv, Globe, User, Atom, AlertTriangle } from "lucide-react";
+import {
+  Sparkles,
+  MapPin,
+  Cat,
+  Tv,
+  Globe,
+  User,
+  Atom,
+  AlertTriangle,
+} from "lucide-react";
 // Firestore周りのimport追加
 import { db } from "@/firebase";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
@@ -23,7 +32,7 @@ export default function CategoryScreen() {
 
   // 激ムズモードを今日すでにプレイしたかどうか
   const [isGekiMuzuPlayed, setIsGekiMuzuPlayed] = useState(false);
-  
+
   // 初回レンダー判定 (必要なら活用)
   const isFirstRender = useRef(true);
 
@@ -131,8 +140,7 @@ export default function CategoryScreen() {
       name: "デイリーモード(激ムズ)",
       level: "激ムズ",
       icon: <AlertTriangle className="h-5 w-5" />,
-      gradient:
-        "from-black to-gray-800 hover:from-gray-900 hover:to-gray-700",
+      gradient: "from-black to-gray-800 hover:from-gray-900 hover:to-gray-700",
     },
   ];
 
@@ -220,19 +228,17 @@ export default function CategoryScreen() {
           </div>
 
           {categories.map((category, index) => (
-            <motion.div
+            <div
               key={category.id}
-              initial={{ x: -50, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.7 + index * 0.1 }}
-              whileHover={{ scale: 1.03, y: -5 }}
-              whileTap={{ scale: 0.97 }}
+              className="transform transition-all duration-75 hover:scale-[1.03] hover:-translate-y-1 active:scale-[0.97]"
             >
               <Button
                 onClick={() => handleCategorySelect(category.id as Category)}
-                className={`bg-gradient-to-r ${category.gradient} text-white px-8 py-6 rounded-xl text-lg font-medium shadow-lg hover:shadow-xl transition-all w-full game-font border border-white/20 flex items-center justify-between`}
-                // 「gekiMuzu」かつプレイ済みなら押せないように
+                className={`bg-gradient-to-r ${category.gradient} text-white px-8 py-6 rounded-xl text-lg font-medium shadow-lg hover:shadow-xl w-full game-font border border-white/20 flex items-center justify-between`}
                 disabled={category.id === "gekiMuzu" && isGekiMuzuPlayed}
+                style={{
+                  transition: "all 0.075s ease-out",
+                }}
               >
                 <div className="flex items-center">
                   <span className="bg-white/20 p-2 rounded-full mr-3">
@@ -244,7 +250,7 @@ export default function CategoryScreen() {
                   {category.level}
                 </span>
               </Button>
-            </motion.div>
+            </div>
           ))}
         </motion.div>
       </div>

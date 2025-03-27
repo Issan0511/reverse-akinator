@@ -19,6 +19,11 @@ export default function GameScreen() {
     Array<{ id: number; x: number; y: number; size: number; speed: number }>
   >([]);
 
+  // 画面が変わるたびに先頭にスクロール
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [stage]);
+
   // 魔法の粒子を生成
   useEffect(() => {
     const particleCount = 50;
