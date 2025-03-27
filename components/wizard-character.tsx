@@ -36,7 +36,6 @@ export default function WizardCharacter({
   // 感情に応じた画像パスを取得
   const getWizardImagePath = () => {
     // デバッグ用にコンソール出力
-    console.log(`Loading wizard image: /wizard/${emotion}.png`);
     return `/wizard/${emotion}.png`;
   };
 

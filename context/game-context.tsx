@@ -23,13 +23,14 @@ import { doc, getDoc, setDoc,addDoc,collection, serverTimestamp } from "firebase
 
 
 // 選択可能なカテゴリーを定義（必要に応じて追加してください）
-export type Category = "characters" | "animals" | "countries"| "programs" | "scienceWords" | "persons" | "prefecture" | "gekiMuzu"
+export type Category = "characters" | "animals" | "countries"| "programs" | "scienceWords" | "persons" | "prefecture" | "gekiMuzu" | "customTopic"
 
-type GameStage = "intro" | "playing" | "result"| "category"| "rank"
+type GameStage = "intro" | "playing" | "result"| "category"| "rank" | "customTopic"
 
 // selectedCharacter をユニオン型にする
 type SelectedCharacter = Character | Animal | Country | Prefecture | null
 
+// GameContextType の拡張
 interface GameContextType {
   stage: GameStage
   setStage: (stage: GameStage) => void
@@ -59,6 +60,8 @@ interface GameContextType {
   decrementAnswerAttempts: () => void
   usedHint: boolean
   setUsedHint: (used: boolean) => void
+  setCustomTopic: (category: string, topic: string) => void
+  customCategoryName: string;  // カスタムカテゴリー名を保持するプロパティを追加
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined)
@@ -81,6 +84,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
   // 回答権の状態を追加（無限大に設定）
   const [remainingAnswerAttempts, setRemainingAnswerAttempts] = useState(Infinity)
   const [usedHint, setUsedHint] = useState(false)
+  const [customCategoryName, setCustomCategoryName] = useState<string>("");  // 新しい状態変数
 
   const maxQuestions = 20
   const remainingQuestions = maxQuestions - questions.length
@@ -199,7 +203,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
   }
 
   const giveUp = () => {
-    setDidGiveUp(true)    // ギ���アップフラグをtrueにする
+    setDidGiveUp(true)    // ギブアップフラグをtrueにする
     setIsSuccess(false)   // 成功フラグはfalse
     if (usedHint) {
       setQuestions([...questions, { question: "ギブアップ", answer: "999" }])
@@ -212,6 +216,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     // 何もしない（回答権は減らない）
   }
 
+  // resetGame関数にカスタムカテゴリー名のリセットを追加
   const resetGame = () => {
     // selectRandomCharacter()
     setQuestions([])
@@ -221,6 +226,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setDidGiveUp(false) // ギブアップフラグをリセット
     setRemainingAnswerAttempts(Infinity) // 回答権をリセット
     setUsedHint(false) // ゲームリセット時にヒント使用状態もリセット
+    setCustomCategoryName("");  // カスタムカテゴリー名もリセット
   }
 
   
@@ -269,6 +275,20 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // setCustomTopic関数を修正
+  const setCustomTopic = (category: string, topic: string) => {
+    setCategory("customTopic");
+    setCustomCategoryName(category);  // カスタムカテゴリー名を保存
+    
+    setSelectedCharacter({ 
+      id: -1, 
+      name: topic, 
+      emoji: "", 
+      description: `カスタムお題: ${topic}`, 
+      tips: "" 
+    });
+  };
+
   return (
     <GameContext.Provider
       value={{
@@ -300,6 +320,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
         decrementAnswerAttempts,
         usedHint,
         setUsedHint,
+        setCustomTopic,
+        customCategoryName,  // 新しいプロパティを公開
       }}
     >
       {children}

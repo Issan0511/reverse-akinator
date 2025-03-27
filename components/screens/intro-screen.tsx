@@ -1,19 +1,96 @@
 "use client";
 
+import { useEffect } from "react";
 import { useGame } from "@/context/game-context";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import WizardCharacter from "@/components/wizard-character";
 import ThoughtBubble from "@/components/thought-bubble";
 import { Sparkles } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 export default function IntroScreen() {
-  const { setStage, setWizardEmotion } = useGame();
+  const { setStage, setWizardEmotion, setCustomTopic } = useGame();
+  const pathname = usePathname();
+
+  // ページ読み込み時にURLパラメータとセッションストレージを確認
+  useEffect(() => {
+    // URLからのカスタムトピック検出（既存処理を残す）
+    const checkCustomTopic = () => {
+      if (!pathname) return;
+      
+      try {
+        const decodedPath = decodeURIComponent(pathname);
+        const match = decodedPath.match(/\/custom\/Category="([^"]+)"selectedCharacter="([^"]+)"/);
+        
+        if (match && match.length === 3) {
+          const category = match[1];
+          const character = match[2];
+          console.log("URLからカスタムトピック検出:", { category, character });
+          
+          // カスタムトピックをセット
+          setCustomTopic(category, character);
+          
+          // 直接プレイ画面に遷移
+          setWizardEmotion("excited");
+          setTimeout(() => {
+            setStage("playing");
+          }, 1000);
+          return true;
+        }
+      } catch (error) {
+        console.error("URLカスタムトピック処理エラー:", error);
+      }
+      return false;
+    };
+    
+    // セッションストレージからのカスタムトピック検出
+    const checkSessionStorage = () => {
+      const hasCustomTopic = sessionStorage.getItem("hasCustomTopic");
+      
+      if (hasCustomTopic === "true") {
+        const category = sessionStorage.getItem("customTopicCategory");
+        const character = sessionStorage.getItem("customTopicCharacter");
+        
+        if (category && character) {
+          console.log("セッションストレージからカスタムトピック検出:", { category, character });
+          
+          // 使用したらセッションストレージから削除
+          sessionStorage.removeItem("hasCustomTopic");
+          sessionStorage.removeItem("customTopicCategory");
+          sessionStorage.removeItem("customTopicCharacter");
+          
+          // カスタムトピックをセット
+          setCustomTopic(category, character);
+          
+          // 直接プレイ画面に遷移
+          setWizardEmotion("excited");
+          setTimeout(() => {
+            setStage("playing");
+          }, 1000);
+          return true;
+        }
+      }
+      return false;
+    };
+    
+    // URLとセッションストレージの両方をチェック
+    if (!checkCustomTopic()) {
+      checkSessionStorage();
+    }
+  }, [pathname, setCustomTopic, setStage]);
 
   const handleStart = () => {
     setWizardEmotion("excited");
     setTimeout(() => {
       setStage("category");
+    }, 1000);
+  };
+
+  const handleCustomTopic = () => {
+    setWizardEmotion("excited");
+    setTimeout(() => {
+      setStage("customTopic");
     }, 1000);
   };
 
@@ -94,6 +171,24 @@ export default function IntroScreen() {
         >
           <Sparkles className="h-5 w-5 text-yellow-300" />
           ゲームを始める
+        </Button>
+      </motion.div>
+
+      {/* カスタムお題追加ボタン */}
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 1.0 }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        className="mt-4"
+      >
+        <Button
+          onClick={handleCustomTopic}
+          className="bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white px-10 py-6 rounded-full text-xl font-medium shadow-xl hover:shadow-2xl transition-all game-font border-2 border-white/20 flex items-center gap-2"
+        >
+          <Sparkles className="h-5 w-5 text-yellow-300" />
+          カスタムお題追加
         </Button>
       </motion.div>
 
