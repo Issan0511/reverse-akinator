@@ -23,9 +23,9 @@ import { doc, getDoc, setDoc,addDoc,collection, serverTimestamp } from "firebase
 
 
 // 選択可能なカテゴリーを定義（必要に応じて追加してください）
-export type Category = "characters" | "animals" | "countries"| "programs" | "scienceWords" | "persons" | "prefecture" | "gekiMuzu"
+export type Category = "characters" | "animals" | "countries"| "programs" | "scienceWords" | "persons" | "prefecture" | "gekiMuzu" | "customTopic"
 
-type GameStage = "intro" | "playing" | "result"| "category"| "rank"
+type GameStage = "intro" | "playing" | "result"| "category"| "rank" | "customTopic"
 
 // selectedCharacter をユニオン型にする
 type SelectedCharacter = Character | Animal | Country | Prefecture | null
@@ -59,6 +59,7 @@ interface GameContextType {
   decrementAnswerAttempts: () => void
   usedHint: boolean
   setUsedHint: (used: boolean) => void
+  setCustomTopic: (category: string, topic: string) => void
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined)
@@ -199,7 +200,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
   }
 
   const giveUp = () => {
-    setDidGiveUp(true)    // ギ���アップフラグをtrueにする
+    setDidGiveUp(true)    // ギブアップフラグをtrueにする
     setIsSuccess(false)   // 成功フラグはfalse
     if (usedHint) {
       setQuestions([...questions, { question: "ギブアップ", answer: "999" }])
@@ -269,6 +270,11 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const setCustomTopic = (category: string, topic: string) => {
+    setCategory("customTopic");
+    setSelectedCharacter({ id: -1, name: topic, emoji: "❓", description: `カスタムお題: ${topic}`, tips: "" });
+  };
+
   return (
     <GameContext.Provider
       value={{
@@ -300,6 +306,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
         decrementAnswerAttempts,
         usedHint,
         setUsedHint,
+        setCustomTopic,
       }}
     >
       {children}

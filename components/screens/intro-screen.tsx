@@ -17,6 +17,13 @@ export default function IntroScreen() {
     }, 1000);
   };
 
+  const handleCustomTopic = () => {
+    setWizardEmotion("excited");
+    setTimeout(() => {
+      setStage("customTopic");
+    }, 1000);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -94,6 +101,24 @@ export default function IntroScreen() {
         >
           <Sparkles className="h-5 w-5 text-yellow-300" />
           ゲームを始める
+        </Button>
+      </motion.div>
+
+      {/* カスタムお題追加ボタン */}
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 1.0 }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        className="mt-4"
+      >
+        <Button
+          onClick={handleCustomTopic}
+          className="bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white px-10 py-6 rounded-full text-xl font-medium shadow-xl hover:shadow-2xl transition-all game-font border-2 border-white/20 flex items-center gap-2"
+        >
+          <Sparkles className="h-5 w-5 text-yellow-300" />
+          カスタムお題追加
         </Button>
       </motion.div>
 
