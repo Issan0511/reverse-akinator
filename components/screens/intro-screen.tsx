@@ -21,11 +21,12 @@ export default function IntroScreen() {
       
       try {
         const decodedPath = decodeURIComponent(pathname);
-        const match = decodedPath.match(/\/custom\/Category="([^"]+)"selectedCharacter="([^"]+)"/);
+        const match = decodedPath.match(/\/custom\/encodedData=([^/]+)/);
         
-        if (match && match.length === 3) {
-          const category = match[1];
-          const character = match[2];
+        if (match && match.length === 2) {
+          const encodedData = match[1];
+          const decodedData = atob(encodedData);
+          const [category, character] = decodedData.split(":");
           console.log("URLからカスタムトピック検出:", { category, character });
           
           // カスタムトピックをセット

@@ -11,7 +11,8 @@ export default function CustomTopicScreen() {
   const [link, setLink] = useState('');
 
   const handleGenerateLink = () => {
-    const generatedLink = `http://localhost:3000/custom/Category="${category}"selectedCharacter="${topic}"`;
+    const encodedData = btoa(`${category}:${topic}`);
+    const generatedLink = `http://localhost:3000/custom/encodedData=${encodedData}`;
     setLink(generatedLink);
   };
 
