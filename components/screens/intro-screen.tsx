@@ -26,7 +26,7 @@ export default function IntroScreen() {
         if (match && match.length === 2) {
           const encodedData = match[1];
           const decodedData = atob(encodedData);
-          const [category, character] = decodedData.split(":");
+          const [category, character] = decodedData.split(":").map(decodeURIComponent);
           console.log("URLからカスタムトピック検出:", { category, character });
           
           // カスタムトピックをセット
@@ -178,7 +178,7 @@ export default function IntroScreen() {
       {/* カスタムお題追加ボタン */}
       <motion.div
         initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
+        animate={{ y: 0 }}
         transition={{ delay: 1.0 }}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
