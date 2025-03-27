@@ -39,6 +39,7 @@ export default function PlayingScreen() {
     setStage,
     giveUp,
     selectedCategory,
+    customCategoryName,
     setUsedHint,
   } = useGame();
 
@@ -48,6 +49,16 @@ export default function PlayingScreen() {
   const [remainingTime, setRemainingTime] = useState(300); // 10分
   const [isTopicListOpen, setIsTopicListOpen] = useState(false);
 
+
+
+
+  // カテゴリー名表示のためのヘルパー関数
+  const getCategoryDisplayName = () => {
+    if (selectedCategory === "customTopic" && customCategoryName) {
+      return customCategoryName;  // カスタムカテゴリーの場合、保存した名前を使用
+    }
+    return categoryNameMapping[selectedCategory] || selectedCategory;
+  };
   // コンポーネントマウント時にトップにスクロール
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -146,7 +157,7 @@ export default function PlayingScreen() {
           <div className="text-white/80">
             カテゴリー:{" "}
             <span className="font-bold text-white">
-              {categoryNameMapping[selectedCategory] || selectedCategory}
+              {getCategoryDisplayName()}
             </span>
           </div>
           <Button
