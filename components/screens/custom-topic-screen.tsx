@@ -1,14 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGame } from '@/context/game-context';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useRouter } from 'next/router';
 
-export default function CustomTopicScreen() {
-  const { setStage } = useGame();
-  const [category, setCategory] = useState('');
-  const [topic, setTopic] = useState('');
+export default function CustomTopicScreen({ initialCategory, initialSelectedCharacter }) {
+  const { setStage, setCustomTopic } = useGame();
+  const [category, setCategory] = useState(initialCategory || '');
+  const [topic, setTopic] = useState(initialSelectedCharacter || '');
   const [link, setLink] = useState('');
+  const router = useRouter();
+
+  useEffect(() => {
+    if (initialCategory && initialSelectedCharacter) {
+      setCustomTopic(initialCategory, initialSelectedCharacter);
+    }
+  }, [initialCategory, initialSelectedCharacter, setCustomTopic]);
 
   const handleGenerateLink = () => {
     const generatedLink = `http://localhost:3000/custom/Category="${category}"selectedCharacter="${topic}"`;
