@@ -159,6 +159,7 @@ export default function PlayingScreen() {
               {getCategoryDisplayName()}
             </span>
           </div>
+          {selectedCategory !== "customTopic" && (
           <Button
             variant="outline"
             size="sm"
@@ -179,6 +180,7 @@ export default function PlayingScreen() {
             <Lightbulb className="w-4 h-4" />
             ヒントを見る
           </Button>
+          )}
         </div>
         <ProgressBar />
       </div>
