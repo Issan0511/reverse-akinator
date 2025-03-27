@@ -8,6 +8,7 @@ import PlayingScreen from "@/components/screens/playing-screen";
 import ResultScreen from "@/components/screens/result-screen";
 import CategoryScreen from "@/components/screens/category-screen";
 import RankScreen from "@/components/screens/rank-screen";
+import CustomTopicScreen from "@/components/screens/custom-topic-screen";
 import LoadingScreen from "@/components/loading-screen";
 import { AnimatePresence, motion } from "framer-motion";
 import UserMenu from "@/components/user-menu";
@@ -89,6 +90,7 @@ export default function GameScreen() {
           {stage === "result" && <ResultScreen key="result" />}
           {stage === "category" && <CategoryScreen key="category" />}
           {stage === "rank" && <RankScreen key="rank" />}
+          {stage === "customTopic" && <CustomTopicScreen key="customTopic" />}
         </AnimatePresence>
       </div>
     </div>
