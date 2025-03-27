@@ -14,18 +14,21 @@ import type { Person } from "@/types/character"
 import { scienceWords } from "@/data/scienceWords"
 import type { ScienceWord } from "@/types/character"
 import { prefectures } from "@/data/prefectures"
-import type { prefecture } from "@/types/character"
-import { collection, addDoc, serverTimestamp } from "firebase/firestore"
+import type { Prefecture } from "@/types/character"
+import { gekiMuzu } from "@/data/gekiMuzu";
+import type { GekiMuzu } from "@/types/character";
 import { auth } from "@/firebase/firebaseConfig"
-import { db } from "@/firebase/firebaseConfig"
+import { db } from "@/firebase"
+import { doc, getDoc, setDoc,addDoc,collection, serverTimestamp } from "firebase/firestore"
+
 
 // 選択可能なカテゴリーを定義（必要に応じて追加してください）
-export type Category = "characters" | "animals" | "countries"| "programs" | "scienceWords" | "persons" | "prefecture"
+export type Category = "characters" | "animals" | "countries"| "programs" | "scienceWords" | "persons" | "prefecture" | "gekiMuzu"
 
 type GameStage = "intro" | "playing" | "result"| "category"| "rank"
 
 // selectedCharacter をユニオン型にする
-type SelectedCharacter = Character | Animal | Country | prefecture | null
+type SelectedCharacter = Character | Animal | Country | Prefecture | null
 
 interface GameContextType {
   stage: GameStage
@@ -93,7 +96,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       | Country
       | ScienceWord
       | Person
-      | prefecture
+      | Prefecture
     )[];
   
     switch (selectedCategory) {
@@ -122,6 +125,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setSelectedCharacter(dataSource[randomIndex] || null);
   };
   
+
   
   
   
@@ -129,63 +133,77 @@ export function GameProvider({ children }: { children: ReactNode }) {
   
 
   const addQuestion = async (question: string, answer: string, reason?: string) => {
+    console.log("addQuestion開始:", { question, answer, reason, usedHint });
     setQuestions([...questions, { question, answer, reason }])
+
+    // デバッグログを追加
+    console.log("デバッグ情報:", {
+      usedHint,
+      answer,
+      willRegisterRanking: !usedHint && answer === "答えに到達"
+    });
 
     // 「答えに到達」の場合は成功として明示的に設定
     if (answer === "答えに到達") {
       setIsSuccess(true)
-      // ヒントを使用していない場合のみランキングに登録
-      if (!usedHint) {
-        try {
-          const user = auth.currentUser
-          if (!user) {
-            console.log("ランキングに登録するにはログインが必要です")
-            return
-          }
+      console.log("答えに到達しました。usedHint:", usedHint);
+    }
 
-          if (!selectedCategory || !selectedCharacter) {
-            console.error("カテゴリーまたはキャラクターが選択されていません")
-            return
-          }
-
-          console.log("ランキング登録開始:", {
-            userId: user.uid,
-            category: selectedCategory,
-            characterId: selectedCharacter.id,
-            questionCount: questions.length
-          })
-
-          const rankingRef = collection(db, "rankings")
-          const newRanking = {
-            userId: user.uid,
-            category: selectedCategory,
-            characterId: selectedCharacter.id,
-            questionCount: questions.length,
-            createdAt: serverTimestamp(),
-          }
-          await addDoc(rankingRef, newRanking)
-          console.log("ランキングに登録しました")
-        } catch (error) {
-          console.error("ランキング登録エラー:", error)
-          if (error instanceof Error) {
-            console.error("エラーの詳細:", error.message)
-          }
+    // ヒントを使用していない場合のみランキングに登録
+    if (!usedHint && answer === "答えに到達") {
+      console.log("ランキング登録条件を満たしています。登録処理を開始します。");
+      try {
+        const user = auth.currentUser
+        if (!user) {
+          console.log("ランキングに登録するにはログインが必要です")
+          return
         }
-      } else {
-        console.log("ヒントを使用したため、ランキングには登録されません")
+
+        if (!selectedCategory || !selectedCharacter) {
+          console.error("カテゴリーまたはキャラクターが選択されていません")
+          return
+        }
+
+        console.log("ランキング登録開始:", {
+          userId: user.uid,
+          category: selectedCategory,
+          characterId: selectedCharacter.id,
+          questionCount: questions.length
+        })
+
+        const rankingRef = collection(db, "rankings")
+        const newRanking = {
+          userId: user.uid,
+          category: selectedCategory,
+          characterId: selectedCharacter.id,
+          questionCount: questions.length,
+          createdAt: serverTimestamp(),
+        }
+        await addDoc(rankingRef, newRanking)
+        console.log("ランキングに登録しました")
+      } catch (error) {
+        console.error("ランキング登録エラー:", error)
+        if (error instanceof Error) {
+          console.error("エラーの詳細:", error.message)
+        }
       }
+    } else if (answer === "答えに到達") {
+      console.log("ヒントを使用したため、ランキングには登録されません")
     }
 
     // Check if game should end
-    if (questions.length + 1 >= maxQuestions) {
+    if (questions.length + 1 >= maxQuestions || usedHint) {
       setIsSuccess(false)
       setStage("result")
     }
   }
 
   const giveUp = () => {
-    setDidGiveUp(true)    // ギブアップフラグをtrueにする
+    setDidGiveUp(true)    // ギ���アップフラグをtrueにする
     setIsSuccess(false)   // 成功フラグはfalse
+    if (usedHint) {
+      setQuestions([...questions, { question: "ギブアップ", answer: "999" }])
+    }
     setStage("result")
   }
 
@@ -205,6 +223,52 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setUsedHint(false) // ゲームリセット時にヒント使用状態もリセット
   }
 
+  
+  // const getFixedGekiMuzuTopic = async () => {
+  //   if (!user) return null;
+
+  //   const docRef = doc(db, "gekiMuzuTopics", user.uid);
+  //   const docSnap = await getDoc(docRef);
+
+  //   if (docSnap.exists()) {
+  //     const data = docSnap.data();
+  //     const today = new Date().toDateString();
+
+  //     if (data.date === today) {
+  //       return data.topic;
+  //     }
+  //   }
+
+  //   // トピックが存在しない場合、新しいトピックを設定
+  //   const newTopic = characters[Math.floor(Math.random() * characters.length)];
+  //   await setDoc(docRef, { topic: newTopic, date: new Date().toDateString() });
+
+  //   return newTopic;
+  // };
+  // 激ムズモードの固定トピックを日付から計算する関数
+  const caluculateFixedGekiMuzuTopic = (): GekiMuzu => {
+    const today = new Date();
+    const day = today.getDate();
+    const month = today.getMonth() + 1;
+    const year = today.getFullYear();
+
+    const total = (day + month*100 + year*10000)*day;
+    const index = total % gekiMuzu.length;
+    return gekiMuzu[index];
+  };
+
+
+  const handleCategorySelect = (category: Category) => {
+    setCategory(category);
+
+    if (category === "gekiMuzu") {
+      const fixedTopic = caluculateFixedGekiMuzuTopic();
+      setSelectedCharacter(fixedTopic);
+    } else {
+      selectRandomCharacter();
+    }
+  };
+
   return (
     <GameContext.Provider
       value={{
@@ -212,7 +276,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
         setStage,
         selectedCharacter,
         selectedCategory,
-        setCategory,
+        setCategory: handleCategorySelect,
         questions,
         addQuestion,
         resetGame,
@@ -224,7 +288,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
         remainingQuestions,
 
         selectRandomCharacter, // ここで公開する
-
         isSuccess,
         giveUp,
         didGiveUp, // 追加公開
@@ -237,7 +300,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
         decrementAnswerAttempts,
         usedHint,
         setUsedHint,
-
       }}
     >
       {children}

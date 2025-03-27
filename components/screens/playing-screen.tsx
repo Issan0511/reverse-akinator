@@ -39,6 +39,7 @@ export default function PlayingScreen() {
     setStage,
     giveUp,
     selectedCategory,
+    setUsedHint,
   } = useGame();
 
   const [question, setQuestion] = useState("");
@@ -157,7 +158,15 @@ export default function PlayingScreen() {
               }
             }}
             variant="outline"
+            size="sm"
+            onClick={() => {
+              console.log("ヒントボタンが押されました");
+              setUsedHint(true);
+              console.log("setUsedHint(true)が呼び出されました");
+              setIsTopicListOpen(true);
+            }}
             className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white px-6 py-3 rounded-full text-md font-medium shadow-lg hover:shadow-xl transition-all game-font border border-white/20 flex items-center gap-2"
+
           >
             <Lightbulb className="h-4 w-4" />
             ヒントを見る
