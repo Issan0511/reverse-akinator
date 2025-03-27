@@ -26,7 +26,8 @@ export default function CustomTopicParamPage() {
       
       if (match && match.length === 3) {
         const category = match[1];
-        const character = match[2];
+        const rawcharacter = match[2];
+        const character = Buffer.from(rawcharacter, "base64").toString("utf-8");
         
         console.log("カスタムトピック検出:", { category, character });
         

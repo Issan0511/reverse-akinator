@@ -11,7 +11,9 @@ export default function CustomTopicScreen() {
   const [link, setLink] = useState('');
 
   const handleGenerateLink = () => {
-    const generatedLink = `http://localhost:3000/custom/Category="${category}"selectedCharacter="${topic}"`;
+    const Base64topic = Buffer.from(topic).toString('base64');
+
+    const generatedLink = `http://localhost:3000/custom/Category="${category}"selectedCharacter="${Base64topic}"`;
     setLink(generatedLink);
   };
 
@@ -27,8 +29,8 @@ export default function CustomTopicScreen() {
       className="flex flex-col items-center justify-center p-6 h-full"
     >
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold mb-4">カスタムお題追加</h1>
-        <p className="text-xl">カテゴリーとお題を入力してください</p>
+        <h1 className="text-4xl font-bold mb-4 text-white">カスタムお題追加</h1>
+        <p className="text-xl text-white">カテゴリーとお題を入力してください</p>
       </div>
 
       <div className="w-full max-w-md">
