@@ -1,4 +1,3 @@
-
 "use client"
 
 import type React from "react"
@@ -11,7 +10,7 @@ import WizardCharacter from "@/components/wizard-character"
 import QuestionHistory from "@/components/question-history"
 import ProgressBar from "@/components/progress-bar"
 import TopicListModal from "@/components/topic-list-modal"
-import { List } from "lucide-react"
+import { List, Lightbulb } from "lucide-react"
 import { set } from "date-fns"
 
 
@@ -47,6 +46,7 @@ export default function PlayingScreen() {
   // ★ 1) 残り時間を管理する state
   const [remainingTime, setRemainingTime] = useState(10000); // 10分
   const [isTopicListOpen, setIsTopicListOpen] = useState(false);
+  const [usedHint, setUsedHint] = useState(false);
 
   // コンポーネントマウント時にトップにスクロール
   useEffect(() => {
@@ -150,13 +150,17 @@ export default function PlayingScreen() {
             </span>
           </div>
           <Button
+            onClick={() => {
+              if (window.confirm("ヒントを使用すると、ランキングに登録されなくなります。よろしいですか？")) {
+                setUsedHint(true);
+                setIsTopicListOpen(true);
+              }
+            }}
             variant="outline"
-            size="sm"
-            onClick={() => setIsTopicListOpen(true)}
-            className="bg-gray-800 hover:bg-gray-700 text-white border-gray-700"
+            className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white px-6 py-3 rounded-full text-md font-medium shadow-lg hover:shadow-xl transition-all game-font border border-white/20 flex items-center gap-2"
           >
-            <List className="w-4 h-4 mr-2" />
-            ヒント（お題一覧）
+            <Lightbulb className="h-4 w-4" />
+            ヒントを見る
           </Button>
         </div>
         <ProgressBar />
