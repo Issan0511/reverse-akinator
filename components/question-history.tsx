@@ -80,7 +80,7 @@ export default function QuestionHistory() {
                   </p>
                   <p
                     className={`
-                    font-bold flex items-center
+                    font-bold flex items-center text-indigo-400
                     ${q.answer === "はい" ? "text-green-400" : ""} 
                     ${q.answer === "いいえ" ? "text-red-400" : ""} 
                     ${q.answer === "わからない" ? "text-yellow-400" : ""}

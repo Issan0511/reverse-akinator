@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import GameScreen from "@/components/game-screen";
 import LoadingScreen from "@/components/loading-screen";
+import ScrollToTop from "@/components/scroll-to-top";
 
 export default function HomePage() {
   const { user, loading } = useAuth();
@@ -27,5 +28,10 @@ export default function HomePage() {
   }
 
   // ログイン済みならゲーム画面を表示
-  return <GameScreen />;
+  return (
+    <>
+      <ScrollToTop />
+      <GameScreen />
+    </>
+  );
 }
