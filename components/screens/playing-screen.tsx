@@ -17,9 +17,6 @@ import { set } from "date-fns";
 const categoryNameMapping: Record<string, string> = {
   characters: "キャラクター",
   animals: "動物",
-  foods: "食べ物",
-  places: "場所",
-  objects: "物",
   countries: "国",
   persons: "人物",
   scienceWords: "理系用語",

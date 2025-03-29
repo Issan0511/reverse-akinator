@@ -3,86 +3,101 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import { useCallback } from "react"
 import { useAuth } from "@/hooks/useAuth";
-import { characters } from "@/data/characters"
-import type { Character } from "@/types/character"
-import { countries } from "@/data/countries"
-import type { Country } from "@/types/character"
-import { animals } from "@/data/animals"
-import type { Animal } from "@/types/character"
-import { persons } from "@/data/persons"
-import type { Person } from "@/types/character"
-import { scienceWords } from "@/data/scienceWords"
-import type { ScienceWord } from "@/types/character"
-import { prefectures } from "@/data/prefectures"
-import type { Prefecture } from "@/types/character"
+
+// データ系のインポート（別ファイルごと）
+import { characters } from "@/data/characters";
+import { countries } from "@/data/countries";
+import { animals } from "@/data/animals";
+import { persons } from "@/data/persons";
+import { scienceWords } from "@/data/scienceWords";
+import { prefectures } from "@/data/prefectures";
 import { gekiMuzu } from "@/data/gekiMuzu";
-import type { GekiMuzu } from "@/types/character";
+
+// 型のインポートは同じファイルからまとめてできる！
+import type {
+  Character,
+  Country,
+  Animal,
+  Person,
+  ScienceWord,
+  Prefecture,
+  GekiMuzu,
+} from "@/types/character";
+
 import { auth } from "@/firebase/firebaseConfig"
 import { db } from "@/firebase"
 import { doc, getDoc, setDoc,addDoc,collection, serverTimestamp } from "firebase/firestore"
-
-
-// 選択可能なカテゴリーを定義（必要に応じて追加してください）
-export type Category = "characters" | "animals" | "countries"| "programs" | "scienceWords" | "persons" | "prefecture" | "gekiMuzu" | "customTopic"
+import type { Category } from "@/types/character";
+import type { SelectedCharacter } from "@/types/character";
 
 type GameStage = "intro" | "playing" | "result"| "category"| "rank" | "customTopic"
+type WizardEmotion = "neutral" | "thinking" | "happy" | "excited" | "confused" 
 
-// selectedCharacter をユニオン型にする
-type SelectedCharacter = Character | Animal | Country | Prefecture | null
-
-// GameContextType の拡張
+// GameContextType の拡張（型定義）
 interface GameContextType {
+
   stage: GameStage
   setStage: (stage: GameStage) => void
+
   selectedCharacter: SelectedCharacter
   selectRandomCharacter: () => void
+
   questions: { question: string; answer: string; reason?: string }[]
   addQuestion: (question: string, answer: string, reason?: string ) => void
+
   resetGame: () => void
-  wizardEmotion: "neutral" | "thinking" | "happy" | "excited" | "confused"
-  setWizardEmotion: (emotion: "neutral" | "thinking" | "happy" | "excited" | "confused") => void
+
+  wizardEmotion: WizardEmotion
+  setWizardEmotion: (emotion: WizardEmotion) => void
+
   isLoading: boolean
   setIsLoading: (loading: boolean) => void
+
   maxQuestions: number
   remainingQuestions: number
+
   selectedCategory: Category
   setCategory: (category: Category) => void
-  isSuccess: boolean
-  // ギブアップフラグを追加
-  didGiveUp: boolean
 
+  isSuccess: boolean
+  setIsSuccess: (value: boolean) => void
+
+
+  didGiveUp: boolean
   giveUp: () => void
-  // ここで user, loading を追加
+  
   user: any;
   loading: boolean;
-  // 回答権の状態を追加
+  
   remainingAnswerAttempts: number
   decrementAnswerAttempts: () => void
+
   usedHint: boolean
   setUsedHint: (used: boolean) => void
+
   setCustomTopic: (category: string, topic: string) => void
   customCategoryName: string;  // カスタムカテゴリー名を保持するプロパティを追加
 }
 
+// Contextをcreateする。GameContextの型はGameContextType か undefined
 const GameContext = createContext<GameContextType | undefined>(undefined)
 
 export function GameProvider({ children }: { children: ReactNode }) {
+
+  //まずは状態を定義
   const [stage, setStage] = useState<GameStage>("intro")
   const { user, loading } = useAuth(); // ★ ここでFirebaseのユーザー情報を取得
   // 選択されたキャラクターをユニオン型で扱う
   const [selectedCharacter, setSelectedCharacter] = useState<SelectedCharacter>(null)
   const [questions, setQuestions] = useState<{ question: string; answer: string ; reason? : string}[]>([])
-  const [wizardEmotion, setWizardEmotion] = useState<"neutral" | "thinking" | "happy" | "excited" | "confused">(
-    "neutral",
-  )
+  const [wizardEmotion, setWizardEmotion] = useState<WizardEmotion>("neutral",)
   const [isLoading, setIsLoading] = useState(false)
   // カテゴリー選択状態とその更新関数を追加（初期値は "characters"）
   const [selectedCategory, setCategory] = useState<Category>("characters")
-  const [isSuccess, setIsSuccess] = useState(true)
-
+  const [isSuccess, setIsSuccess] = useState(false)
   const [didGiveUp, setDidGiveUp] = useState(false)
   // 回答権の状態を追加（無限大に設定）
-  const [remainingAnswerAttempts, setRemainingAnswerAttempts] = useState(Infinity)
+  const [remainingAnswerAttempts, setRemainingAnswerAttempts] = useState(20)
   const [usedHint, setUsedHint] = useState(false)
   const [customCategoryName, setCustomCategoryName] = useState<string>("");  // 新しい状態変数
 
@@ -93,15 +108,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
     resetGame()
   }, [])
 
+  //関数を定義
   const selectRandomCharacter = () => {
-    let dataSource: (
-      | Character
-      | Animal
-      | Country
-      | ScienceWord
-      | Person
-      | Prefecture
-    )[];
+    let dataSource: (SelectedCharacter)[];
   
     switch (selectedCategory) {
       case "animals":
@@ -128,16 +137,36 @@ export function GameProvider({ children }: { children: ReactNode }) {
     const randomIndex = Math.floor(Math.random() * dataSource.length);
     setSelectedCharacter(dataSource[randomIndex] || null);
   };
-  
+
+
+  // 激ムズモードの固定トピックを日付から計算する関数
+  const caluculateFixedGekiMuzuTopic = (): GekiMuzu => {
+    const today = new Date();
+    const day = today.getDate();
+    const month = today.getMonth() + 1;
+    const year = today.getFullYear();
+
+    const total = (day + month*100 + year*10000)*day;
+    const index = total % gekiMuzu.length;
+    return gekiMuzu[index];
+  };
+
+
+  const handleCategorySelect = (category: Category) => {
+    setCategory(category);
+
+    if (category === "gekiMuzu") {
+      const fixedTopic = caluculateFixedGekiMuzuTopic();
+      setSelectedCharacter(fixedTopic);
+    } else {
+      selectRandomCharacter();
+    }
+  };
 
   
-  
-  
-  
-  
-
   const addQuestion = async (question: string, answer: string, reason?: string) => {
     console.log("addQuestion開始:", { question, answer, reason, usedHint });
+    // 質問歴に追加する関数
     setQuestions([...questions, { question, answer, reason }])
 
     // デバッグログを追加
@@ -175,7 +204,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
           questionCount: questions.length
         })
 
+        // Firestore の rankings コレクションへの参照を取得
         const rankingRef = collection(db, "rankings")
+
         const newRanking = {
           userId: user.uid,
           category: selectedCategory,
@@ -183,6 +214,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
           questionCount: questions.length,
           createdAt: serverTimestamp(),
         }
+        // rankingRefにnewRankingを追加
         await addDoc(rankingRef, newRanking)
         console.log("ランキングに登録しました")
       } catch (error) {
@@ -224,61 +256,12 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setWizardEmotion("neutral")
     setIsSuccess(false)
     setDidGiveUp(false) // ギブアップフラグをリセット
-    setRemainingAnswerAttempts(Infinity) // 回答権をリセット
+    setRemainingAnswerAttempts(20) // 回答権をリセット
     setUsedHint(false) // ゲームリセット時にヒント使用状態もリセット
     setCustomCategoryName("");  // カスタムカテゴリー名もリセット
   }
-
-  const reloadPlaying = () => {
-    
-  }
-
   
-  // const getFixedGekiMuzuTopic = async () => {
-  //   if (!user) return null;
-
-  //   const docRef = doc(db, "gekiMuzuTopics", user.uid);
-  //   const docSnap = await getDoc(docRef);
-
-  //   if (docSnap.exists()) {
-  //     const data = docSnap.data();
-  //     const today = new Date().toDateString();
-
-  //     if (data.date === today) {
-  //       return data.topic;
-  //     }
-  //   }
-
-  //   // トピックが存在しない場合、新しいトピックを設定
-  //   const newTopic = characters[Math.floor(Math.random() * characters.length)];
-  //   await setDoc(docRef, { topic: newTopic, date: new Date().toDateString() });
-
-  //   return newTopic;
-  // };
-  // 激ムズモードの固定トピックを日付から計算する関数
-  const caluculateFixedGekiMuzuTopic = (): GekiMuzu => {
-    const today = new Date();
-    const day = today.getDate();
-    const month = today.getMonth() + 1;
-    const year = today.getFullYear();
-
-    const total = (day + month*100 + year*10000)*day;
-    const index = total % gekiMuzu.length;
-    return gekiMuzu[index];
-  };
-
-
-  const handleCategorySelect = (category: Category) => {
-    setCategory(category);
-
-    if (category === "gekiMuzu") {
-      const fixedTopic = caluculateFixedGekiMuzuTopic();
-      setSelectedCharacter(fixedTopic);
-    } else {
-      selectRandomCharacter();
-    }
-  };
-
+  
   // setCustomTopic関数を修正
   const setCustomTopic = (category: string, topic: string) => {
     setCategory("customTopic");
@@ -311,21 +294,20 @@ export function GameProvider({ children }: { children: ReactNode }) {
         maxQuestions,
         remainingQuestions,
 
-        selectRandomCharacter, // ここで公開する
+        selectRandomCharacter, 
         isSuccess,
-        giveUp,
-        didGiveUp, // 追加公開
+        setIsSuccess, 
 
-        // ★ userとloadingも一緒に提供
+        giveUp,
+        didGiveUp, 
         user,
         loading,
-        // 回答権の状態を追加
         remainingAnswerAttempts,
         decrementAnswerAttempts,
         usedHint,
         setUsedHint,
         setCustomTopic,
-        customCategoryName,  // 新しいプロパティを公開
+        customCategoryName,
       }}
     >
       {children}

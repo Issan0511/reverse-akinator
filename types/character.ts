@@ -6,14 +6,6 @@ export interface Character {
   tips: string
 }
 
-
-export interface Program {
-  id: number
-  name: string
-  emoji: string
-  description: string
-}
-
 export interface Animal {
   id: number
   name: string
@@ -64,4 +56,5 @@ export interface GekiMuzu {
 
 
 
-export type Category = "characters" | "animals" | "countries" | "programs" | "scienceWords" | "persons" | "prefecture"| "gekiMuzu" 
+export type Category =  "characters" | "animals" | "countries"| "programs" | "scienceWords" | "persons" | "prefecture" | "gekiMuzu" | "customTopic" 
+export type SelectedCharacter = Character | Animal | Country | Prefecture | ScienceWord | Person | GekiMuzu | null
