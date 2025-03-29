@@ -16,7 +16,7 @@ import {
   Atom,
   AlertTriangle,
 } from "lucide-react";
-// Firestore周りのimport追加
+
 import { db } from "@/firebase";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 
@@ -30,20 +30,15 @@ export default function CategoryScreen() {
     user,
   } = useGame();
 
-  // 激ムズモードを今日すでにプレイしたかどうか
   const [isGekiMuzuPlayed, setIsGekiMuzuPlayed] = useState(false);
-
-  // 初回レンダー判定 (必要なら活用)
   const isFirstRender = useRef(true);
 
-  // 選択されたカテゴリーが変わった時、gekiMuzu 以外ならキャラ選択
   useEffect(() => {
     if (selectedCategory && selectedCategory !== "gekiMuzu") {
       selectRandomCharacter();
     }
   }, [selectedCategory]);
 
-  // 激ムズモードのプレイ状況をチェック
   useEffect(() => {
     const checkGekiMuzuStatus = async () => {
       if (!user) return;
@@ -56,7 +51,6 @@ export default function CategoryScreen() {
         const lastPlayed = data.lastPlayed?.toDate();
         const today = new Date();
 
-        // lastPlayed が今日の日付と同じならプレイ済み
         if (lastPlayed && lastPlayed.toDateString() === today.toDateString()) {
           setIsGekiMuzuPlayed(true);
         }
@@ -66,26 +60,24 @@ export default function CategoryScreen() {
     checkGekiMuzuStatus();
   }, [user]);
 
-  // カテゴリー選択処理
   const handleCategorySelect = async (category: Category) => {
-    // ウィザードの感情を「excited」に
     setWizardEmotion("excited");
-    // カテゴリーをセット
     setCategory(category);
 
-    // 激ムズモードなら、プレイ日時を記録
     if (category === "gekiMuzu" && user) {
       const docRef = doc(db, "dailyChallenges", user.uid);
       await setDoc(docRef, { lastPlayed: serverTimestamp() }, { merge: true });
     }
 
-    // 1秒後にゲーム画面へ
     setTimeout(() => {
       setStage("playing");
     }, 1000);
   };
 
-  // カテゴリーデータ（激ムズを追加）
+  const handleBack = () => {
+    setStage("intro");
+  };
+
   const categories = [
     {
       id: "prefecture",
@@ -201,9 +193,9 @@ export default function CategoryScreen() {
         </motion.p>
       </motion.div>
 
-      {/* メインコンテンツエリア */}
+      {/* メインエリア */}
       <div className="flex-1 flex flex-col md:flex-row items-center justify-center gap-8 w-full max-w-6xl mt-4 md:mt-0">
-        {/* ウィザードキャラクター */}
+        {/* ウィザード */}
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -213,7 +205,7 @@ export default function CategoryScreen() {
           <WizardCharacter emotion="thinking" />
         </motion.div>
 
-        {/* カテゴリーボタン */}
+        {/* カテゴリーボタンと戻るボタン */}
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -227,7 +219,7 @@ export default function CategoryScreen() {
             </p>
           </div>
 
-          {categories.map((category, index) => (
+          {categories.map((category) => (
             <div
               key={category.id}
               className="transform transition-all duration-75 hover:scale-[1.03] hover:-translate-y-1 active:scale-[0.97]"
@@ -236,9 +228,7 @@ export default function CategoryScreen() {
                 onClick={() => handleCategorySelect(category.id as Category)}
                 className={`bg-gradient-to-r ${category.gradient} text-white px-8 py-6 rounded-xl text-lg font-medium shadow-lg hover:shadow-xl w-full game-font border border-white/20 flex items-center justify-between`}
                 disabled={category.id === "gekiMuzu" && isGekiMuzuPlayed}
-                style={{
-                  transition: "all 0.075s ease-out",
-                }}
+                style={{ transition: "all 0.075s ease-out" }}
               >
                 <div className="flex items-center">
                   <span className="bg-white/20 p-2 rounded-full mr-3">
@@ -252,6 +242,16 @@ export default function CategoryScreen() {
               </Button>
             </div>
           ))}
+
+          {/* ✅ 戻るボタンを下に表示 */}
+          <div className="mt-6 flex justify-center">
+            <Button
+              onClick={handleBack}
+              className="bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white px-10 py-6 rounded-full text-xl font-medium shadow-xl hover:shadow-2xl transition-all"
+            >
+              戻る
+            </Button>
+          </div>
         </motion.div>
       </div>
     </motion.div>

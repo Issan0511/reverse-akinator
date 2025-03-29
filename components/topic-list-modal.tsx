@@ -8,7 +8,7 @@ import { countries } from "@/data/countries"
 import { persons } from "@/data/persons"
 import { scienceWords } from "@/data/scienceWords"
 import { prefectures } from "@/data/prefectures"
-import type { Category } from "@/context/game-context"
+import type { Category } from "@/types/character"
 import { Button } from "@/components/ui/button"
 import { Eraser } from "lucide-react"
 
